@@ -10,6 +10,7 @@ from backend.data.database import engine, Base
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
+init()
 
 app.mount("/frontend/dist", StaticFiles(directory="frontend/dist"), name="frontend-dist")
 
