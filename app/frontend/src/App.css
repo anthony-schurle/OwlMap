@@ -229,7 +229,12 @@
  .legend-dot.recreation { background-color: #96CEB4; }
  .legend-dot.residential { background-color: #FFEAA7; }
  
- 
+ /* Force legend labels to be black for readability */
+.legend span,
+div.absolute.bottom-4.left-4 span {
+  color: #000 !important;
+}
+
  /* Popup Styles */
  .mapboxgl-popup {
   z-index: 10000;
