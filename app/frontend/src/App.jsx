@@ -59,13 +59,9 @@ const SERVERIES = [
    name: "North Servery",
    coord: [-95.40324, 29.72041],
    hours: {
-     Mon: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Tue: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Wed: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Thu: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Fri: "B: 7–10a, L: 11–2p, D: 5–7p",
-     Sat: "Br: 10–2p, D: 5–7p",
-     Sun: "Br: 10–2p, D: 5–8p",
+     Weekdays: "Breakfast: 7:30 AM – 10:30 AM, Snack: 10:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Dinner: 5:00 PM - 8:00 PM",
+     Saturday: "Closed",
+     Sunday: "Breakfast: 8:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Munch: 3:00 PM - 5:00 PM, Dinner: 5:30 PM - 8:30 PM",
    },
  },
  {
@@ -73,13 +69,9 @@ const SERVERIES = [
    name: "Seibel Servery",
    coord: [-95.40174, 29.71667],
    hours: {
-     Mon: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Tue: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Wed: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Thu: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Fri: "B: 7–10a, L: 11–2p, D: 5–7p",
-     Sat: "Br: 10–2p, D: 5–7p",
-     Sun: "Br: 10–2p, D: 5–8p",
+     Weekdays: "Breakfast: 7:30 AM – 10:00 AM, Snack: 10:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Dinner: 5:00 PM - 8:00 PM",
+     Saturday: "Closed",
+     Sunday: "Breakfast: 8:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Munch: 3:00 PM - 5:00 PM, Dinner: 5:30 PM - 8:30 PM",
    },
  },
  {
@@ -87,13 +79,29 @@ const SERVERIES = [
    name: "West Servery",
    coord: [-95.40500, 29.71900],
    hours: {
-     Mon: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Tue: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Wed: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Thu: "B: 7–10a, L: 11–2p, D: 5–8p",
-     Fri: "B: 7–10a, L: 11–2p, D: 5–7p",
-     Sat: "Br: 10–2p, D: 5–7p",
-     Sun: "Br: 10–2p, D: 5–8p",
+     Weekdays: "Breakfast: 7:30 AM – 10:00 AM, Lunch: 11:30 AM - 1:30 PM, Munch: 2:00 PM - 4:00 PM, Snack: 4:00 PM - 5:00 PM, Dinner: 5:00 PM - 9:00 PM",
+     Saturday: "Breakfast: 8:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Munch: 3:00 PM - 5:00 PM, Dinner: 5:30 PM - 8:30 PM",
+     Sunday: "Closed",
+   },
+ },
+  {
+   id: "SouthServery",
+   name: "South Servery",
+   coord: [-95.40500, 29.71900],
+   hours: {
+     Weekdays: "Breakfast: 7:30 AM – 10:00 AM, Lunch: 11:30 AM - 1:30 PM, Munch: 2:00 PM - 4:00 PM, Snack: 4:00 PM - 5:00 PM, Dinner: 5:00 PM - 9:00 PM",
+     Saturday: "Closed",
+     Sunday: "Closed",
+   },
+ },
+  {
+   id: "BakerServery",
+   name: "Baker Servery",
+   coord: [-95.40500, 29.71900],
+   hours: {
+     Weekdays: "Breakfast: 7:30 AM – 10:30 AM, Lunch: 11:30 AM - 2:00 PM, Dinner: 5:00 PM - 8:00 PM, Late Night Dining: 9:00 PM - 11:00 PM",
+     Saturday: "Breakfast: 8:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Munch: 3:00 PM - 5:00 PM, Dinner: 5:30 PM - 8:30 PM",
+     Sunday: "Closed",
    },
  },
 ];
@@ -121,6 +129,21 @@ function createCustomMarker(color, emoji, size = 30) {
    iconAnchor: [size/2, size/2],
    popupAnchor: [0, -size/2]
  });
+}
+
+function toMealsList(v) {
+  if (Array.isArray(v)) {
+    // Join multiple strings, then split by commas
+    v = v.join(", ");
+  }
+  if (typeof v === "string") {
+    return v.split(",").map(s => s.trim()).filter(Boolean);
+  }
+  if (v && typeof v === "object") {
+    // Support object shape: { Breakfast: "7–10a", Lunch: "11–2p" }
+    return Object.entries(v).map(([k, times]) => `${k}: ${times}`);
+  }
+  return [];
 }
 
 
@@ -394,7 +417,7 @@ export default function RiceNavigatorApp() {
                ))}
              </select>
            </div>
-           <div className="bg-white p-3 rounded-lg border">
+           <div className="block text-xs font-medium text-gray-700 mb-1">
              <p className="text-sm">
                <span className="font-medium">Distance:</span> {straightMeters ? `${straightMeters.toFixed(0)} m` : "—"}
              </p>
@@ -525,12 +548,20 @@ export default function RiceNavigatorApp() {
              <div className="font-medium text-orange-800 mb-2">{serveryInfo.name}</div>
              <div className="max-h-32 overflow-y-auto">
                <ul className="text-sm space-y-1">
-                 {Object.entries(serveryInfo.hours).map(([d, h]) => (
-                   <li key={d} className="flex justify-between">
-                     <span className="text-gray-700 font-medium">{d}:</span>
-                     <span className="text-gray-600">{h}</span>
-                   </li>
-                 ))}
+                 {Object.entries(serveryInfo.hours).map(([day, value]) => {
+  const meals = toMealsList(value);
+  return (
+    <li key={day} className="mb-1">
+      <span className="text-gray-700 font-bold">{day}:</span>
+      <ul className="ml-4 list-disc text-black">
+        {meals.map((meal, i) => (
+          <li key={i}>{meal}</li>
+        ))}
+      </ul>
+    </li>
+  );
+})}
+
                </ul>
              </div>
            </div>
