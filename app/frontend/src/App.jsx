@@ -559,11 +559,12 @@ export default function RiceNavigatorApp() {
          <div className="space-y-2">
            <div className="flex items-center gap-2 text-sm">
              <div className="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow"></div>
-             <span>🏛️ Academic Buildings</span>
+             <span className="text-black">🏛️ Academic Buildings</span>
+
            </div>
            <div className="flex items-center gap-2 text-sm">
              <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow"></div>
-             <span>🍽️ Serveries</span>
+             <span className="text-black">🍽️ Serveries</span>
            </div>
          </div>
        </div>
