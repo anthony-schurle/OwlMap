@@ -11,22 +11,26 @@
 ## Tech Stack
 
 Backend:
-  - Python
-  - FastAPI
-  - SQLAlchemy
-  - Docker
+
+- Python
+- FastAPI
+- SQLAlchemy
+- Docker
 
 Frontend:
-  - React
-  - Javascript
-  - CSS
-  - HTML
-  - Mapbox GLJS (Leaflet)
+
+- React
+- Javascript
+- CSS
+- HTML
+- Mapbox GLJS (Leaflet)
 
 ## Teams
 
 Backend:
-  - Anthony
 
-Frontend: 
-  - Simar
+- Anthony
+
+Frontend:
+
+- Simar

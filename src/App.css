@@ -1,0 +1,349 @@
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f8f9fa;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+}
+
+.App {
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header Styles */
+.app-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #003d82 0%, #0066cc 100%);
+  color: white;
+  padding: 15px 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: auto;
+  padding: 0;
+}
+
+.owl-icon {
+  font-size: 28px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+.logo h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  margin-left: 5px;
+}
+
+/* Search Container */
+.search-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  padding: 10px 40px 10px 15px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 25px;
+  font-size: 14px;
+  width: 300px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4ECDC4;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
+  background: white;
+}
+
+.search-icon {
+  position: absolute;
+  right: 15px;
+  color: #7f8c8d;
+  pointer-events: none;
+}
+
+.category-filter {
+  padding: 10px 15px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.category-filter:focus {
+  outline: none;
+  border-color: #4ECDC4;
+  background: white;
+}
+
+/* Map Markers */
+.custom-marker {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+  display: flex;
+  alignItems: center;
+  justifyContent: center;
+  fontSize: 14px;
+  fontWeight: bold;
+  transition: transform 0.2s ease;
+}
+
+.custom-marker:hover {
+  transform: scale(1.15);
+  boxShadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* Marker colors by type */
+.marker-servery { background: #FF6B6B; }
+.marker-library { background: #4ECDC4; }
+.marker-academic { background: #45B7D1; }
+.marker-recreation { background: #96CEB4; }
+.marker-residential { background: #FFEAA7; }
+
+/* Legend */
+.legend {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.legend h4 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.legend-dot.servery { background-color: #FF6B6B; }
+.legend-dot.library { background-color: #4ECDC4; }
+.legend-dot.academic { background-color: #45B7D1; }
+.legend-dot.recreation { background-color: #96CEB4; }
+.legend-dot.residential { background-color: #FFEAA7; }
+
+/* Popup Styles */
+.mapboxgl-popup {
+  z-index: 10000;
+}
+
+.mapboxgl-popup-content {
+  border-radius: 12px;
+  padding: 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  border: none;
+  min-width: 280px;
+  max-width: 350px;
+}
+
+.popup-content {
+  padding: 20px;
+}
+
+.popup-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 5px;
+  line-height: 1.2;
+}
+
+.popup-type {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+}
+
+.popup-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #34495e;
+  font-size: 13px;
+}
+
+.status {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status.open {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status.closed {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Rice University branding colors */
+.rice-blue { color: #003d82; }
+.rice-gray { color: #7c7c7c; }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .search-container {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .search-input,
+  .category-filter {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .legend {
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 10px;
+  }
+  
+  .legend-item {
+    font-size: 10px;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+  
+  .app-header {
+    padding: 10px 15px;
+    position: relative;
+  }
+  
+  .logo h1 {
+    font-size: 20px;
+  }
+  
+  .owl-icon {
+    font-size: 24px;
+  }
+  
+  .App {
+    padding-top: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-input {
+    width: 250px;
+  }
+  
+  .popup-content {
+    padding: 15px;
+  }
+  
+  .mapboxgl-popup-content {
+    min-width: 250px;
+  }
+}
