@@ -1,12 +1,13 @@
-import map, node
+from . import map
+from . import node
 
 class Main:
     def __init__(self):
         self.map = map.Map()
 
-        rec = node.Node("Gibbs Recreation and Wellness Center", 29.718234287094702, -95.40365381464878)
+        rec = node.Node("Recreation Center", 29.718234287094702, -95.40365381464878)
         fondren = node.Node("Fondren Library", 29.7184889244895, -95.40003002999113)
-        lovett = node.Node("Edgar Odell Lovett College", 29.716736984405465, -95.39799155165602)
+        lovett = node.Node("Lovett College", 29.716736984405465, -95.39799155165602)
         will_rice = node.Node("Will Rice College", 29.716466139816475, -95.39871387154595)
         hanszen = node.Node("Hanszen College", 29.715892410957814, -95.40018766506088)
         sid_richardson = node.Node("Sid Richardson College", 29.715691758825585, -95.39829300944861)
@@ -59,4 +60,3 @@ class Main:
         end = self.map.get_node(end_str)
 
         return self.map.navigation_distance(start, end)
-
