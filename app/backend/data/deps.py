@@ -1,7 +1,7 @@
-from backend.data.database import Session
+from backend.data.database import SessionLocal
 
 def get_db():
-    db = Session()
+    db = SessionLocal()
     try:
         yield db
     finally:

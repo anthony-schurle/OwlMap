@@ -13,4 +13,4 @@ engine = create_engine(f"postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWOR
 Base = declarative_base()
 
 Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

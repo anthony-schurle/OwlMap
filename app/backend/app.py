@@ -16,7 +16,8 @@ def index():
 
 @app.get("/nodes")
 def get_nodes():
-    return {"nodes": interface.get_nodes()}
+    nodes = interface.get_nodes()
+    return {"nodes": [(node.name, node.latitude, node.longitude) for node in nodes]}
 
 @app.get("/navigate")
 def navigate(start_str: str, end_str: str):
