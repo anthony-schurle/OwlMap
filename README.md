@@ -1,32 +1,12 @@
-# OwlMap
+# React + Vite
 
-## Features By Priority
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-1. Navigation (shortest distance?)
-2. Times and other related information (scrape?)
-3. Events/Courses Integration mapping to locations
-4. Foot traffic
-5. AI chatbot
+Currently, two official plugins are available:
 
-## Tech Stack
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-Backend:
-  - Python
-  - FastAPI
-  - SQLAlchemy
-  - Docker
+## Expanding the ESLint configuration
 
-Frontend:
-  - React
-  - Javascript
-  - CSS
-  - HTML
-  - Mapbox GLJS (Leaflet)
-
-## Teams
-
-Backend:
-  - Anthony
-
-Frontend: 
-  - Simar
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
