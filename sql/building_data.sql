@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS building_data;
 -- Create table with JSONB column
 CREATE TABLE building_data (
     id SERIAL PRIMARY KEY,
-    
+
     data JSONB NOT NULL
 );
 
@@ -73,4 +73,3 @@ VALUES (
 );
 
 -- Optional: Preview the table
-SELECT * FROM building_data;

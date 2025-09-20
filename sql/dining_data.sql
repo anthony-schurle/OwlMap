@@ -105,5 +105,3 @@ INSERT INTO dining_halls (data) VALUES (
     }
 }');
 
-SELECT * FROM dining_halls;
-
