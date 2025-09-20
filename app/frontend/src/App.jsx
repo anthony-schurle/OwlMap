@@ -554,7 +554,7 @@ export default function RiceNavigatorApp() {
    }}
  /> 
        {/* Legend */}
-       <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur rounded-lg p-4 shadow-lg border">
+       <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur rounded-lg p-4 shadow-lg border z-[1100]">
          <h4 className="font-semibold text-gray-800 mb-3">Legend</h4>
          <div className="space-y-2">
            <div className="flex items-center gap-2 text-sm">
