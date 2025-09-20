@@ -22,3 +22,11 @@ Frontend:
   - CSS
   - HTML
   - Mapbox GLJS (Leaflet)
+
+## Teams
+
+Backend:
+  - Anthony
+
+Frontend: 
+  - Simar
