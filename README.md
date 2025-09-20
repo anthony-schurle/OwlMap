@@ -36,3 +36,7 @@ Frontend:
 
 - Simar
 - Zane
+
+## Running
+
+docker-compose up --build
