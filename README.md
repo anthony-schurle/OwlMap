@@ -23,14 +23,16 @@ Frontend:
 - Javascript
 - CSS
 - HTML
-- Mapbox GLJS (Leaflet)
+- Leaflet
 
 ## Teams
 
 Backend:
 
 - Anthony
+- Josh
 
 Frontend:
 
 - Simar
+- Zane
