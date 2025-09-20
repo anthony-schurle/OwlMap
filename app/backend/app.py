@@ -1,19 +1,18 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-import os
 
 from . import main
 
 app = FastAPI()
 
-app.mount("/frontend/dist", StaticFiles(directory="frontend/dist"), name="frontend-dist")
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 interface = main.Main()
 
 @app.get("/")
 def index():
-    return FileResponse("frontend/dist/index.html")
+    return FileResponse("frontend/index.html")
 
 @app.get("/nodes")
 def get_nodes():

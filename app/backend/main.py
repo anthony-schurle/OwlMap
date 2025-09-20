@@ -1,4 +1,5 @@
-import map, node
+from . import map
+from . import node
 
 class Main:
     def __init__(self):
