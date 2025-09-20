@@ -1,5 +1,5 @@
-from . import map
-from . import node
+from backend.logic import map
+from backend.logic import node
 
 class Main:
     def __init__(self):

@@ -585,16 +585,17 @@ export default function RiceNavigatorApp() {
    }}
  /> 
        {/* Legend */}
-       <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur rounded-lg p-4 shadow-lg border">
+       <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur rounded-lg p-4 shadow-lg border z-[1100]">
          <h4 className="font-semibold text-gray-800 mb-3">Legend</h4>
          <div className="space-y-2">
            <div className="flex items-center gap-2 text-sm">
              <div className="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow"></div>
-             <span>🏛️ Academic Buildings</span>
+             <span className="text-black">🏛️ Academic Buildings</span>
+
            </div>
            <div className="flex items-center gap-2 text-sm">
              <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow"></div>
-             <span>🍽️ Serveries</span>
+             <span className="text-black">🍽️ Serveries</span>
            </div>
          </div>
        </div>
