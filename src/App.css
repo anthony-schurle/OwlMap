@@ -347,3 +347,116 @@ body {
     min-width: 250px;
   }
 }
+
+/* === ADD THESE LEAFLET-SPECIFIC STYLES TO THE BOTTOM OF YOUR APP.CSS === */
+
+/* Leaflet map container - CRITICAL for map display */
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  background: #f8f9fa;
+}
+
+/* Ensure tiles load properly */
+.leaflet-tile-container {
+  pointer-events: auto;
+}
+
+.leaflet-tile {
+  pointer-events: auto;
+}
+
+/* Fix marker icons positioning */
+.leaflet-marker-icon {
+  margin-left: -12px !important;
+  margin-top: -41px !important;
+}
+
+.leaflet-marker-shadow {
+  margin-left: -12px !important;
+  margin-top: -41px !important;
+}
+
+/* Custom marker hover effects */
+.custom-marker {
+  transition: transform 0.2s ease !important;
+}
+
+.custom-marker:hover {
+  transform: scale(1.1) !important;
+}
+
+/* Leaflet popup styles - override the mapboxgl ones you have */
+.leaflet-popup {
+  margin-bottom: 20px;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25) !important;
+  border: none !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-close-button {
+  background: #f87171 !important;
+  color: white !important;
+  border-radius: 50% !important;
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 14px !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  line-height: 18px !important;
+}
+
+.leaflet-popup-close-button:hover {
+  background: #ef4444 !important;
+}
+
+/* Attribution control styling */
+.leaflet-control-attribution {
+  background: rgba(255, 255, 255, 0.8) !important;
+  font-size: 10px !important;
+  padding: 2px 5px !important;
+}
+
+/* Zoom control styling */
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.leaflet-control-zoom a {
+  background: white !important;
+  border: none !important;
+  color: #374151 !important;
+  font-weight: bold !important;
+  transition: all 0.2s ease !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: #f3f4f6 !important;
+  color: #1f2937 !important;
+}
+
+/* Loading spinner for tiles */
+.leaflet-tile-loading {
+  opacity: 0.5;
+}
+
+/* Ensure map container has proper dimensions */
+#map-container {
+  height: 100vh !important;
+  width: 100% !important;
+}
+
+/* Fix for React Strict Mode double rendering */
+.leaflet-container .leaflet-control-container .leaflet-top.leaflet-left {
+  top: 10px;
+  left: 10px;
+}
