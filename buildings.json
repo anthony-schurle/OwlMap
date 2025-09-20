@@ -1,13 +1,16 @@
 {
-  "BioScience Research Collaborative": null,
-  "Brockman Hall of Physics": null,
-  "Dell Butcher Hall": null,
-  "Anne and Charles Duncan Hall": null,
-  "George R. Brown Hall": null,
-  "Howard Keck Hall": null,
-  "Mechanical Engineering Building": null,
-  "Mechanical Laboratory": null,
-  "Oshman Engineering Design Kitchen": null,
-  "Ryon Engineering Laboratory": null,
-  "Space Science and Technology Building": null
+  "ENGINEERING BUILDINGS": {
+    "BioScience Research Collaborative": "7AM-6PM Weekdays",
+    "Brockman Hall of Physics": "N/A",
+    "Dell Butcher Hall": "N/A",
+    "Anne and Charles Duncan Hall": "N/A",
+    "George R. Brown Hall": "N/A",
+    "Howard Keck Hall": "N/A",
+    "Mechanical Engineering Building": "Varies, contact building",
+    "Mechanical Laboratory": "Varies, contact building",
+    "Oshman Engineering Design Kitchen": "Varies, contact building, requires access",
+    "Ryon Engineering Laboratory": "Varies, contact building",
+    "Space Science and Technology Building": "Varies, contact building, contact building"
+  }
+  
 }
