@@ -11,9 +11,9 @@ class Map:
         self.nodes[node1].append((node2, cost))
         self.nodes[node2].append((node1, cost))
 
-    def get_node(self, str):
-        for node in self.nodes:
-            if node.name == str:
+    def get_node(self, name):
+        for node in self.nodes.keys():
+            if node.name == name:
                 return node
 
     def heuristic(self, node1, node2):
