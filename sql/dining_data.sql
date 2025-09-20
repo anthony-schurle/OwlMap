@@ -1,13 +1,12 @@
--- 1. Drop table if it exists (optional)
+
 DROP TABLE IF EXISTS dining_halls;
 
--- 2. Create table with a JSONB column
 CREATE TABLE dining_halls (
     id SERIAL PRIMARY KEY,
     data JSONB NOT NULL
 );
 
--- 3. Insert the entire JSON as a single row
+
 INSERT INTO dining_halls (data) VALUES (
 '{
     "BAKER": {

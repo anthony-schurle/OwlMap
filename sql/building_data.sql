@@ -7,7 +7,6 @@ CREATE TABLE building_data (
     data JSONB NOT NULL
 );
 
--- Insert your large JSON dictionary as one row
 INSERT INTO building_data(data)
 VALUES (
 '{
@@ -72,4 +71,3 @@ VALUES (
 }'::jsonb
 );
 
--- Optional: Preview the table
