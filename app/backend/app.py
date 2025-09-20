@@ -7,9 +7,13 @@ from . import main
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="/app/frontend"), name="static")
+app.mount("/frontend/dist", StaticFiles(directory="frontend/dist"), name="frontend-dist")
 
 interface = main.Main()
+
+@app.get("/")
+def index():
+    return FileResponse("frontend/dist/index.html")
 
 @app.get("/nodes")
 def get_nodes():
