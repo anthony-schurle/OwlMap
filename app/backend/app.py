@@ -1,0 +1,25 @@
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+from . import main
+
+app = FastAPI()
+
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
+
+interface = main.Main()
+
+@app.get("/")
+def index():
+    return FileResponse("frontend/index.html")
+
+@app.get("/nodes")
+def get_nodes():
+    return {"nodes": interface.get_nodes()}
+
+@app.get("/navigate")
+def navigate(start_str: str, end_str: str):
+    path, distance = interface.navigate(start_str, end_str)
+
+    return {"path": [node.name for node in path], "distance": distance}
