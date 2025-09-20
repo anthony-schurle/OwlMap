@@ -317,12 +317,49 @@ export default function RiceNavigatorApp() {
  const straightMinutes = straightMeters ? minutesAtSpeed(straightMeters) : 0;
 
 
- // Add a course
- function addCourse(e) {
-   e?.preventDefault?.();
-   const id = `${newCourse.name}-${Date.now()}`;
-   setCourses((prev) => [...prev, { id, ...newCourse }]);
- }
+ function isValidTime24(str) {
+  // Must be "HH:MM" 24-hour format
+  if (typeof str !== "string") return false;
+  const regex = /^([0-1]\d|2[0-3]):([0-5]\d)$/;
+  return regex.test(str);
+}
+
+function addCourse(e) {
+  e?.preventDefault?.();
+
+  const { start, end, day, name, buildingId } = newCourse;
+
+  // Validate 24-hour times
+  if (!isValidTime24(start) || !isValidTime24(end)) {
+    alert("Please enter valid start and end times in 24-hour format (HH:MM).");
+    return;
+  }
+
+  const newStart = parseTimeToMinutes(start);
+  const newEnd = parseTimeToMinutes(end);
+
+  if (newStart >= newEnd) {
+    alert("Start time must be before end time.");
+    return;
+  }
+
+  // Check for conflicts on the same day
+  const conflict = courses.some(c => {
+    if (c.day !== day) return false;
+    const existingStart = parseTimeToMinutes(c.start);
+    const existingEnd = parseTimeToMinutes(c.end);
+    return newStart < existingEnd && newEnd > existingStart;
+  });
+
+  if (conflict) {
+    alert("This course overlaps with an existing course on the same day!");
+    return;
+  }
+
+  // Add course
+  const id = `${name}-${Date.now()}`;
+  setCourses(prev => [...prev, { id, ...newCourse }]);
+}
 
 
  // Remove a course
