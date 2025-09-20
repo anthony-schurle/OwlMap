@@ -6,13 +6,13 @@ from . import main
 
 app = FastAPI()
 
-app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
+app.mount("/frontend/dist", StaticFiles(directory="frontend/dist"), name="frontend-dist")
 
 interface = main.Main()
 
 @app.get("/")
 def index():
-    return FileResponse("frontend/index.html")
+    return FileResponse("frontend/dist/index.html")
 
 @app.get("/nodes")
 def get_nodes():
