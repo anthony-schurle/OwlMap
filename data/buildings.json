@@ -56,6 +56,16 @@
         ["Monday - Friday", "2:00 PM - 8:00 PM"],
         ["Saturday - Sunday", "10:00 AM - 8:00 PM"]
       ]
+    },
+    "Stadium": {
+      "Football Schedule": [
+        ["vs. FAU", "Oct. 4"],
+        ["vs. UConn", "Oct. 25"],
+        ["vs. Memphis", "Oct. 31"],
+        ["vs. UAB", "Nov. 8"],
+        ["vs. North Texas", "Nov. 22"]
+      ]
+
     }
   }
   
