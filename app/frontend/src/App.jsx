@@ -122,6 +122,18 @@ function getEventTypeStyle(type) {
 }
 
 /* ==== COLLAPSIBLE SECTION COMPONENT ==== */
+async function fetchCourseLocation(courseCode) {
+  try {
+    const res = await fetch(`/course-location?code=${encodeURIComponent(courseCode)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return data['location-name'];
+  } catch (err) {
+    console.error("Failed to fetch course location:", err);
+    return null;
+  }
+}
+
 function CollapsibleSection({ title, emoji, bgColor, borderColor, textColor, isExpanded, onToggle, children }) {
   return (
     <section className={`${bgColor} rounded-lg border ${borderColor}`}>
@@ -667,13 +679,19 @@ export default function RiceNavigatorApp() {
               {courses.map((c) => (
                 <li
                   key={c.id}
-                  className="p-3 flex items-center justify-between hover:bg-gray-50"
+                  className="p-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
+                  onClick={async () => {
+                    const loc = await fetchCourseLocation(c.name);
+                    if (loc) setSelected(loc); // Update Quick Walk ETA “To”
+                    setOrigin(origin || nodes[0]?.name); // Optional: ensure origin is set
+                  }}
                 >
                   <div>
                     <div className="font-medium text-gray-900">{c.name}</div>
+                    <div className="text-xs text-gray-500">{c.day} {c.start}-{c.end}</div>
                   </div>
                   <button
-                    onClick={() => removeCourse(c.id)}
+                    onClick={(e) => { e.stopPropagation(); removeCourse(c.id); }}
                     className="text-red-600 text-sm hover:text-red-800 px-2 py-1 rounded hover:bg-red-50"
                   >
                     Remove
@@ -791,34 +809,39 @@ export default function RiceNavigatorApp() {
           onToggle={() => toggleSection('serveries')}
         >
           <div className="space-y-3">
-            {/* Example hardcoded serveries */}
             <div className="bg-white p-3 border rounded-lg">
               <div className="font-medium text-orange-800 mb-2">South Servery</div>
               <ul className="text-sm space-y-1">
-                <li>
-                  <span className="font-bold text-gray-700">Mon:</span> 7:00 AM - 9:00 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM
-                </li>
-                <li>
-                  <span className="font-bold text-gray-700">Tue:</span> 7:00 AM - 9:00 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM
-                </li>
-                <li>
-                  <span className="font-bold text-gray-700">Wed:</span> 7:00 AM - 9:00 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM
-                </li>
+                <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:30 AM (Breakfast), 11:30 AM - 1:30 PM (Lunch), 2:00 PM - 4:00 PM (Munch), 4:00 PM - 5:00 PM (Snack), 5:30 PM - 9:00 PM (Extended Dinner)</li>
+                <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
+                <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> Closed</li>
               </ul>
             </div>
 
             <div className="bg-white p-3 border rounded-lg">
               <div className="font-medium text-orange-800 mb-2">North Servery</div>
               <ul className="text-sm space-y-1">
-                <li>
-                  <span className="font-bold text-gray-700">Mon:</span> 7:00 AM - 9:00 AM, 11:30 AM - 2:30 PM, 5:30 PM - 8:30 PM
-                </li>
-                <li>
-                  <span className="font-bold text-gray-700">Tue:</span> 7:00 AM - 9:00 AM, 11:30 AM - 2:30 PM, 5:30 PM - 8:30 PM
-                </li>
-                <li>
-                  <span className="font-bold text-gray-700">Wed:</span> 7:00 AM - 9:00 AM, 11:30 AM - 2:30 PM, 5:30 PM - 8:30 PM
-                </li>
+                <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:30 AM (Breakfast), 10:00 AM - 11:00 AM (Snack), 11:30 AM - 2:00 PM (Lunch), 5:00 PM - 8:00 PM (Dinner, Mon-Thu; Fri Dinner Closed)</li>
+                <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> Closed</li>
+                <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
+              </ul>
+            </div>
+
+            <div className="bg-white p-3 border rounded-lg">
+              <div className="font-medium text-orange-800 mb-2">Seibel Servery</div>
+              <ul className="text-sm space-y-1">
+                <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:00 AM (Enhanced Breakfast), 10:00 AM - 11:00 AM (Snack), 11:30 AM - 2:00 PM (Lunch), 5:00 PM - 8:00 PM (Dinner, Mon-Thu; Fri Dinner Closed)</li>
+                <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> Closed</li>
+                <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
+              </ul>
+            </div>
+
+            <div className="bg-white p-3 border rounded-lg">
+              <div className="font-medium text-orange-800 mb-2">West Servery</div>
+              <ul className="text-sm space-y-1">
+                <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:00 AM (Enhanced Breakfast), 11:30 AM - 1:30 PM (Lunch), 2:00 PM - 4:00 PM (Munch), 4:00 PM - 5:00 PM (Snack), 5:30 PM - 9:00 PM (Extended Dinner)</li>
+                <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
+                <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> Closed</li>
               </ul>
             </div>
           </div>
