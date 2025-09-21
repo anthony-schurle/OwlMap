@@ -17,6 +17,16 @@ def init():
     Location(name="Jones College", latitude=29.72165096077053, longitude=-95.39676200326267),
     Location(name="Brown College", latitude=29.72158108027819, longitude=-95.39587687430644),
     Location(name="McMurtry College", latitude=29.720369810681373, longitude=-95.39811383654994),
+    Location(name="Anderson Biological Laboratories", latitude=29.718533877370447, longitude=-95.40277557979525),
+    Location(name="Duncan Hall", latitude=29.72012629264678, longitude=-95.39876267795523),
+    Location(name="Brockman Hall", latitude=29.719657512578248, longitude= -95.40156544571923),
+    Location(name="Dell Butcher Hall", latitude=29.719610775088725, longitude=-95.40342413588199),
+    Location(name="Keck Hall", latitude=29.71976632116094, longitude=-95.40013150519043),
+    Location(name="Herzstein Hall", latitude=29.719403657626334, longitude=-95.39848599355855),
+    Location(name="Rayzor Hall", latitude=29.718120367743776, longitude=-95.39900093604061),
+    Location(name="BRC", latitude=29.710575418118918, longitude=-95.4014485121265),
+    Location(name="OEDK", latitude=29.72116327508793, longitude=-95.40133636100799)
+
 ]
 
     db = SessionLocal()

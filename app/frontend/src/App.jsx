@@ -469,7 +469,7 @@ function addCourse(e) {
        {/* Courses */}
        <section className="bg-green-50 p-4 rounded-lg border border-green-200">
          <h2 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
-           📚 Your Courses
+           📚 Your Schedule
          </h2>
          <form className="space-y-3" onSubmit={addCourse}>
            <input
