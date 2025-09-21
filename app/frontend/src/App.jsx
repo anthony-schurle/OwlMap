@@ -650,6 +650,83 @@ function addCourse(e) {
           </div>
         </section>
 
+        {/* Courses */}
+       <section className="bg-green-50 p-4 rounded-lg border border-green-200">
+         <h2 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
+           📚 Your Activities
+         </h2>
+         <form className="space-y-3" onSubmit={addCourse}>
+           <input
+             className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:border-green-500"
+             placeholder="Course name (e.g., COMP 182)"
+             value={newCourse.name}
+             onChange={(e) => setNewCourse((c) => ({ ...c, name: e.target.value }))}
+             required
+           />
+           <select
+             className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:border-green-500"
+             value={newCourse.buildingId}
+             onChange={(e) => setNewCourse((c) => ({ ...c, buildingId: e.target.value }))}
+           >
+             {BUILDINGS.map((b) => (
+               <option key={b.id} value={b.id}>{b.name}</option>
+             ))}
+           </select>
+           <div className="grid grid-cols-3 gap-2">
+             <select
+               className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+               value={newCourse.day}
+               onChange={(e) => setNewCourse((c) => ({ ...c, day: e.target.value }))}
+             >
+               {["Mon", "Tue", "Wed", "Thu", "Fri"].map((d) => (
+                 <option key={d} value={d}>{d}</option>
+               ))}
+             </select>
+             <input
+               className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+               placeholder="Start"
+               value={newCourse.start}
+               onChange={(e) => setNewCourse((c) => ({ ...c, start: e.target.value }))}
+             />
+             <input
+               className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+               placeholder="End"
+               value={newCourse.end}
+               onChange={(e) => setNewCourse((c) => ({ ...c, end: e.target.value }))}
+             />
+           </div>
+           <button className="w-full rounded-lg py-2 bg-green-600 text-white font-medium shadow hover:shadow-md hover:bg-green-700 transition-all">
+             Add Course
+           </button>
+         </form>
+
+
+         <div className="mt-4">
+           <ul className="divide-y bg-white border rounded-lg max-h-48 overflow-y-auto">
+             {courses.length === 0 && (
+               <li className="p-3 text-sm text-gray-500 text-center">No courses yet. Add one above.</li>
+             )}
+             {courses.map((c) => (
+               <li key={c.id} className="p-3 flex items-center justify-between hover:bg-gray-50">
+                 <div>
+                   <div className="font-medium text-gray-900">{c.name}</div>
+                   <div className="text-xs text-gray-600">
+                     {c.day} {c.start}–{c.end} • {BUILDINGS.find((b) => b.id === c.buildingId)?.name}
+                   </div>
+                 </div>
+                 <button
+                   onClick={() => removeCourse(c.id)}
+                   className="text-red-600 text-sm hover:text-red-800 px-2 py-1 rounded hover:bg-red-50"
+                 >
+                   Remove
+                 </button>
+               </li>
+             ))}
+           </ul>
+         </div>
+       </section>
+
+
         {/* Courses (unchanged UI) */}
         {/* ... keep your existing Courses and Servery sections as-is ... */}
 
