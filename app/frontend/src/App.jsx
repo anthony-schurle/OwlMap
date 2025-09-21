@@ -420,91 +420,53 @@ export default function RiceNavigatorApp() {
     const map = mapRef.current;
     if (!map || !origin || !selected) return;
 
-    if (pathLineRef.current) {
-      map.removeLayer(pathLineRef.current);
-      pathLineRef.current = null;
-    }
+   // Remove existing path line
+   if (pathLineRef.current) {
+     map.removeLayer(pathLineRef.current);
+   }
 
-    const ac = new AbortController();
 
-    (async () => {
-      try {
-        const { names, distanceMeters } = await fetchRouteNames(
-          origin,
-          selected,
-          ac.signal
-        );
+   const fromBuilding = BUILDINGS.find((b) => b.id === origin);
+   const toBuilding = BUILDINGS.find((b) => b.id === selected);
+  
+   if (!fromBuilding || !toBuilding) return;
 
-        const { latLngs, coordsLonLat, missing } = namesToLatLngs(names);
-        if (missing.length) {
-          console.warn("Missing coords for node names from API:", missing);
-        }
-        if (latLngs.length < 2)
-          throw new Error("No mappable coords from names");
 
-        pathLineRef.current = L.polyline(latLngs, {
-          color: "#2563eb",
-          weight: 5,
-          opacity: 0.9,
-        }).addTo(map);
+   const latlngs = [
+     [fromBuilding.coord[1], fromBuilding.coord[0]],
+     [toBuilding.coord[1], toBuilding.coord[0]]
+   ];
 
-        map.fitBounds(L.latLngBounds(latLngs), { padding: [40, 40] });
 
-        const meters =
-          Number.isFinite(distanceMeters) && distanceMeters >= 0
-            ? distanceMeters
-            : (() => {
-                let total = 0;
-                for (let i = 0; i < coordsLonLat.length - 1; i++) {
-                  total += haversineMeters(
-                    coordsLonLat[i],
-                    coordsLonLat[i + 1]
-                  );
-                }
-                return total;
-              })();
+   pathLineRef.current = L.polyline(latlngs, {
+     color: '#2563eb',
+     weight: 4,
+     opacity: 0.7,
+     dashArray: '10, 5'
+   }).addTo(map);
 
-        setRouteMeters(meters);
-        setRouteMinutes(minutesAtSpeed(meters));
-      } catch (err) {
-        if (err.name === "AbortError") return;
-        console.warn("Route API failed; attempting straight-line fallback:", err);
-        setRouteMeters(null);
-        setRouteMinutes(null);
 
-        const a = coordFromName(origin);
-        const b = coordFromName(selected);
-        if (a && b) {
-          const latlngs = [
-            [a[1], a[0]],
-            [b[1], b[0]],
-          ];
-          pathLineRef.current = L.polyline(latlngs, {
-            color: "#2563eb",
-            weight: 4,
-            opacity: 0.7,
-            dashArray: "10, 5",
-          }).addTo(map);
-          map.fitBounds(L.latLngBounds(latlngs), { padding: [60, 60] });
-          const straight = haversineMeters(a, b);
-          setRouteMeters(straight);
-          setRouteMinutes(minutesAtSpeed(straight));
-        }
-      }
-    })();
+ }, [origin, selected]);
 
-    return () => ac.abort();
-  }, [origin, selected, nodes]);
 
-  /* ====== COURSES (kept from your version) ====== */
-  function addCourse(e) {
-    e?.preventDefault?.();
-    const id = `${newCourse.name}-${Date.now()}`;
-    setCourses((prev) => [...prev, { id, ...newCourse }]);
-  }
-  function removeCourse(id) {
-    setCourses((prev) => prev.filter((c) => c.id !== id));
-  }
+ const originCoord = BUILDINGS.find((b) => b.id === origin)?.coord;
+ const selectedCoord = BUILDINGS.find((b) => b.id === selected)?.coord;
+ const straightMeters = originCoord && selectedCoord ? haversineMeters(originCoord, selectedCoord) : 0;
+ const straightMinutes = straightMeters ? minutesAtSpeed(straightMeters) : 0;
+
+
+ // Add a course
+ function addCourse(e) {
+   e?.preventDefault?.();
+   const id = `${newCourse.name}-${Date.now()}`;
+   setCourses((prev) => [...prev, { id, ...newCourse }]);
+ }
+
+
+ // Remove a course
+ function removeCourse(id) {
+   setCourses((prev) => prev.filter((c) => c.id !== id));
+ }
 
   const dayETA = useMemo(() => {
     const byDay = courses.reduce((acc, c) => {
