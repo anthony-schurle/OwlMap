@@ -161,7 +161,6 @@ export default function RiceNavigatorApp() {
     walkEta: true,
     courses: true,
     events: true,
-    walkTime: false,
     serveries: false,
   });
 
@@ -781,23 +780,6 @@ export default function RiceNavigatorApp() {
         </div>
         </CollapsibleSection>
 
-        {/* Daily walking time summary */}
-        <CollapsibleSection
-          title="Daily Walk Time"
-          emoji="🚶‍♂️"
-          bgColor="bg-purple-50"
-          borderColor="border-purple-200"
-          textColor="text-purple-800"
-          isExpanded={sectionStates.walkTime}
-          onToggle={() => toggleSection('walkTime')}
-        >
-          <div className="bg-white border rounded-lg divide-y max-h-32 overflow-y-auto">
-            <div className="p-3 text-sm text-gray-500 text-center">
-              No walk time data available
-            </div>
-          </div>
-        </CollapsibleSection>
-
         {/* Serveries */}
         <CollapsibleSection
           title="Serveries & Hours"
@@ -808,38 +790,38 @@ export default function RiceNavigatorApp() {
           isExpanded={sectionStates.serveries}
           onToggle={() => toggleSection('serveries')}
         >
-          <div className="flex flex-wrap gap-2 mb-3">
-            {/* Servery buttons would go here */}
-          </div>
-          {serveryInfo && (
+          <div className="space-y-3">
+            {/* Example hardcoded serveries */}
             <div className="bg-white p-3 border rounded-lg">
-              <div className="font-medium text-orange-800 mb-2">
-                {serveryInfo.name}
-              </div>
-              <div className="max-h-32 overflow-y-auto">
-                <ul className="text-sm space-y-1">
-                  {Object.entries(serveryInfo.hours).map(([day, value]) => {
-                    const meals = toMealsList(value);
-                    return (
-                      <li key={day} className="mb-1">
-                        <span className="text-gray-700 font-bold">{day}:</span>
-                        <ul className="ml-4 list-disc text-black">
-                          {meals.map((meal, i) => (
-                            <li key={i}>{meal}</li>
-                          ))}
-                        </ul>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+              <div className="font-medium text-orange-800 mb-2">South Servery</div>
+              <ul className="text-sm space-y-1">
+                <li>
+                  <span className="font-bold text-gray-700">Mon:</span> 7:00 AM - 9:00 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM
+                </li>
+                <li>
+                  <span className="font-bold text-gray-700">Tue:</span> 7:00 AM - 9:00 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM
+                </li>
+                <li>
+                  <span className="font-bold text-gray-700">Wed:</span> 7:00 AM - 9:00 AM, 11:00 AM - 2:00 PM, 5:00 PM - 8:00 PM
+                </li>
+              </ul>
             </div>
-          )}
-          {!serveryInfo && (
-            <div className="bg-white border rounded-lg p-3 text-sm text-gray-500 text-center">
-              No servery information available
+
+            <div className="bg-white p-3 border rounded-lg">
+              <div className="font-medium text-orange-800 mb-2">North Servery</div>
+              <ul className="text-sm space-y-1">
+                <li>
+                  <span className="font-bold text-gray-700">Mon:</span> 7:00 AM - 9:00 AM, 11:30 AM - 2:30 PM, 5:30 PM - 8:30 PM
+                </li>
+                <li>
+                  <span className="font-bold text-gray-700">Tue:</span> 7:00 AM - 9:00 AM, 11:30 AM - 2:30 PM, 5:30 PM - 8:30 PM
+                </li>
+                <li>
+                  <span className="font-bold text-gray-700">Wed:</span> 7:00 AM - 9:00 AM, 11:30 AM - 2:30 PM, 5:30 PM - 8:30 PM
+                </li>
+              </ul>
             </div>
-          )}
+          </div>
         </CollapsibleSection>
       </aside>
 
