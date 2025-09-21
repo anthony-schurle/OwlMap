@@ -1,8 +1,9 @@
-from sqlalchemy import String, Column, Float, ForeignKey, Table
+from sqlalchemy import String, Column, Float, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from .database import Base
 import uuid
+
 
 class Location(Base):
     __tablename__ = "locations"
@@ -11,12 +12,10 @@ class Location(Base):
     name = Column(String, nullable=False, unique=True)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
-    
-    edges = relationship(
-        "Edge",
-        primaryjoin="or_(Location.id==Edge.location_1_id, Location.id==Edge.location_2_id)",
-        back_populates="locations",
-    )
+
+    # Relationship to edges (view-only to avoid inserting via this relationship)
+    edges_from = relationship("Edge", foreign_keys="[Edge.location_1_id]", back_populates="location_1")
+    edges_to = relationship("Edge", foreign_keys="[Edge.location_2_id]", back_populates="location_2")
 
 
 class Edge(Base):
@@ -26,10 +25,7 @@ class Edge(Base):
     location_1_id = Column(UUID(as_uuid=True), ForeignKey("locations.id"), nullable=False)
     location_2_id = Column(UUID(as_uuid=True), ForeignKey("locations.id"), nullable=False)
     distance = Column(Float, nullable=False)
-    
-    locations = relationship(
-        "Location",
-        primaryjoin="or_(Edge.location_1_id==Location.id, Edge.location_2_id==Location.id)",
-        viewonly=True,
-        back_populates="edges",
-    )
+
+    # Direct relationships to locations
+    location_1 = relationship("Location", foreign_keys=[location_1_id], back_populates="edges_from")
+    location_2 = relationship("Location", foreign_keys=[location_2_id], back_populates="edges_to")
