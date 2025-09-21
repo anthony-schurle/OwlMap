@@ -1,11 +1,11 @@
-version: "3.9"
-
 services:
   postgres:
-    image: postgres:16
-    container_name: ${POSTGRES_CONTAINER:-owlmap-postgres}
     env_file:
       - ./.env
+    image: postgres
+    container_name: ${POSTGRES_CONTAINER}
+    expose:
+      - "5432"
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -13,35 +13,19 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     restart: always
-
-  backend:
-    build:
-      context: ./app              # <- your FastAPI app folder
-      # If your Dockerfile lives at repo root, change to: dockerfile: ../Dockerfile
-    container_name: ${APP_CONTAINER:-owlmap-backend}
+  
+  app:
     env_file:
       - ./.env
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    build:
+      context: ./app
+      dockerfile: ../Dockerfile
+    container_name: ${APP_CONTAINER}
     ports:
-      - "8000:8000"               # <- publish on host 8000
+      - "${WEB_PORT}:8000"
     depends_on:
       - postgres
     restart: always
-
-  frontend:
-    image: node:20-alpine
-    container_name: owlmap-frontend
-    working_dir: /app
-    volumes:
-      - ./frontend:/app           # <- your React/Vite project folder
-    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
-    environment:
-      - VITE_API_BASE=http://localhost:8000   # browser hits host:8000
-    ports:
-      - "5173:5173"
-    depends_on:
-      - backend
-    restart: unless-stopped
 
 volumes:
   db-data:
