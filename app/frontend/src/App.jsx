@@ -167,6 +167,12 @@ export default function RiceNavigatorApp() {
   const mapContainer = useRef(null);
   const markersRef = useRef([]);
   const pathLineRef = useRef(null);
+  const dragRef = useRef(null);
+  const sidebarRef = useRef(null);
+
+  // Sidebar drag state
+  const [sidebarWidth, setSidebarWidth] = useState(400); // Default width in pixels
+  const [isDragging, setIsDragging] = useState(false);
 
   // Collapsible state
   const [sectionStates, setSectionStates] = useState({
@@ -247,6 +253,62 @@ export default function RiceNavigatorApp() {
       [sectionKey]: !prev[sectionKey]
     }));
   };
+
+  // Drag functionality
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    e.preventDefault();
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    
+    const newWidth = e.clientX;
+    // Set minimum width of 200px and maximum of 600px
+    const clampedWidth = Math.max(0, Math.min(600, newWidth));
+    setSidebarWidth(clampedWidth);
+    
+    // Trigger map resize when dragging
+    if (mapRef.current) {
+      setTimeout(() => mapRef.current.invalidateSize(), 100);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Add event listeners for drag functionality
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    } else {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isDragging]);
+
+  // Trigger map resize when sidebar width changes
+  useEffect(() => {
+    if (mapRef.current) {
+      const timeoutId = setTimeout(() => {
+        mapRef.current.invalidateSize();
+      }, 150);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [sidebarWidth]);
 
   /* ====== NAME → COORD MAP (from nodes) ====== */
   function rebuildNameToCoordMap(fetchedNodes) {
@@ -535,325 +597,369 @@ export default function RiceNavigatorApp() {
       }}
     >
       {/* Sidebar */}
-      <aside className="w-1/3 p-4 space-y-4 bg-white border-r shadow-lg overflow-y-auto">
-        <div className="flex items-center gap-3 mb-4 pb-4 border-b">
-          <span className="text-3xl">🦉</span>
-          <div>
-            <h1 className="text-2xl font-bold text-blue-800">Owl Map</h1>
-            <p className="text-sm text-gray-600">Rice University Navigator</p>
-          </div>
-        </div>
-
-        {/* Quick ETA */}
-        <CollapsibleSection
-          title="Quick Walk ETA"
-          emoji="📍"
-          bgColor="bg-blue-50"
-          borderColor="border-blue-200"
-          textColor="text-blue-800"
-          isExpanded={sectionStates.walkEta}
-          onToggle={() => toggleSection('walkEta')}
-        >
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                From:
-              </label>
-              <select
-                className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={origin}
-                onChange={(e) => setOrigin(e.target.value)}
-                disabled={!nodes.length}
-              >
-                {!nodes.length && (
-                  <option>
-                    {nodesError ? `Error: ${nodesError}` : "Loading nodes…"}
-                  </option>
-                )}
-                {nodes.map((n) => (
-                  <option key={n.name} value={n.name}>
-                    {n.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">
-                To:
-              </label>
-              <select
-                className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                value={selected}
-                onChange={(e) => setSelected(e.target.value)}
-                disabled={!nodes.length}
-              >
-                {!nodes.length && (
-                  <option>
-                    {nodesError ? `Error: ${nodesError}` : "Loading nodes…"}
-                  </option>
-                )}
-                {nodes.map((n) => (
-                  <option key={n.name} value={n.name}>
-                    {n.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="block text-xs font-medium text-gray-700 mb-1">
-              <p className="text-sm">
-                <span className="font-medium">Distance:</span>{" "}
-                {routeMeters != null ? `${routeMeters.toFixed(0)} ft` : "—"}
-              </p>
-              <p className="text-sm">
-                <span className="font-medium">Walk time:</span>{" "}
-                {routeMinutes != null ? `${routeMinutes.toFixed(1)} min` : "—"}
-              </p>
-            </div>
-          </div>
-        </CollapsibleSection>
-
-        {/* Courses */}
-        <CollapsibleSection
-          title="Your Courses"
-          emoji="📚"
-          bgColor="bg-green-50"
-          borderColor="border-green-200"
-          textColor="text-green-800"
-          isExpanded={sectionStates.courses}
-          onToggle={() => toggleSection('courses')}
-        >
-          <form className="space-y-3" onSubmit={addCourse}>
-            <input
-              className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              placeholder="Course name (e.g., COMP 182)"
-              value={newCourse.name}
-              onChange={(e) =>
-                setNewCourse((c) => ({ ...c, name: e.target.value }))
-              }
-              required
-            />
-            
-            <div className="grid grid-cols-3 gap-2">
-              <select
-                className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                value={newCourse.day}
-                onChange={(e) =>
-                  setNewCourse((c) => ({ ...c, day: e.target.value }))
-                }
-              >
-                {["Mon", "Tue", "Wed", "Thu", "Fri"].map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
-              <input
-                className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="Start"
-                value={newCourse.start}
-                onChange={(e) =>
-                  setNewCourse((c) => ({ ...c, start: e.target.value }))
-                }
-              />
-              <input
-                className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="End"
-                value={newCourse.end}
-                onChange={(e) =>
-                  setNewCourse((c) => ({ ...c, end: e.target.value }))
-                }
-              />
-            </div>
-            <button className="w-full rounded-lg py-2 bg-green-600 text-white font-medium shadow hover:shadow-md hover:bg-green-700 transition-all">
-              Add Course
-            </button>
-          </form>
-
-          <div className="mt-4">
-            <ul className="divide-y bg-white border rounded-lg max-h-48 overflow-y-auto">
-              {courses.length === 0 && (
-                <li className="p-3 text-sm text-gray-500 text-center">
-                  No courses yet. Add one above.
-                </li>
-              )}
-              {courses.map((c) => (
-                <li
-                  key={c.id}
-                  className="p-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
-                  onClick={async () => {
-                    const loc = await fetchCourseLocation(c.name);
-                    if (loc) setSelected(loc); // Update Quick Walk ETA “To”
-                    setOrigin(origin || nodes[0]?.name); // Optional: ensure origin is set
-                  }}
-                >
-                  <div>
-                    <div className="font-medium text-gray-900">{c.name}</div>
-                    <div className="text-xs text-gray-500">{c.day} {c.start}-{c.end}</div>
-                  </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); removeCourse(c.id); }}
-                    className="text-red-600 text-sm hover:text-red-800 px-2 py-1 rounded hover:bg-red-50"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </CollapsibleSection>
-
-        {/* Events */}
-        <CollapsibleSection
-          title="Campus Events"
-          emoji="🎉"
-          bgColor="bg-yellow-50"
-          borderColor="border-yellow-200"
-          textColor="text-yellow-800"
-          isExpanded={sectionStates.events}
-          onToggle={() => toggleSection('events')}
-        >
-          <div className="flex gap-1 mb-3">
-            {[
-              { key: "today", label: "Today" },
-              { key: "upcoming", label: "Upcoming" },
-              { key: "all", label: "All" }
-            ].map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => setSelectedEventDate(key)}
-                className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                  selectedEventDate === key
-                    ? "bg-yellow-200 text-yellow-800 border-yellow-300"
-                    : "bg-white text-gray-600 border-gray-300 hover:bg-yellow-100"
-                } border`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          <div className="bg-white border rounded-lg max-h-64 overflow-y-auto">
-            {filteredEvents.length === 0 && (
-              <div className="p-3 text-sm text-gray-500 text-center">
-                {selectedEventDate === "today" ? "No events today" : "No events found"}
+      <aside 
+        ref={sidebarRef}
+        className="bg-white border-r shadow-lg overflow-hidden relative"
+        style={{ 
+          width: `${sidebarWidth}px`,
+          minWidth: sidebarWidth === 0 ? '0px' : '200px',
+          transition: isDragging ? 'none' : 'width 0.2s ease-out'
+        }}
+      >
+        {sidebarWidth > 0 && (
+          <div className="h-full overflow-y-auto p-4 space-y-4">
+            <div className="flex items-center gap-3 mb-4 pb-4 border-b">
+              <span className="text-3xl">🦉</span>
+              <div>
+                <h1 className="text-2xl font-bold text-blue-800">Owl Map</h1>
+                <p className="text-sm text-gray-600">Rice University Navigator</p>
               </div>
-            )}
-            
-            {filteredEvents.map((event) => {
-              const typeStyle = getEventTypeStyle(event.type);
-              const eventDate = new Date(event.date);
-              const isEventToday = isToday(event.date);
-              
-              return (
-                <div
-                  key={event.id}
-                  className="p-3 border-b last:border-b-0 hover:bg-gray-50 cursor-pointer"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className={`w-2 h-2 rounded-full ${typeStyle.dot}`}></div>
-                        <h4 className="font-medium text-gray-900 text-sm leading-tight">
-                          {event.name}
-                        </h4>
+            </div>
+
+            {/* Quick ETA */}
+            <CollapsibleSection
+              title="Quick Walk ETA"
+              emoji="📍"
+              bgColor="bg-blue-50"
+              borderColor="border-blue-200"
+              textColor="text-blue-800"
+              isExpanded={sectionStates.walkEta}
+              onToggle={() => toggleSection('walkEta')}
+            >
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    From:
+                  </label>
+                  <select
+                    className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={origin}
+                    onChange={(e) => setOrigin(e.target.value)}
+                    disabled={!nodes.length}
+                  >
+                    {!nodes.length && (
+                      <option>
+                        {nodesError ? `Error: ${nodesError}` : "Loading nodes…"}
+                      </option>
+                    )}
+                    {nodes.map((n) => (
+                      <option key={n.name} value={n.name}>
+                        {n.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    To:
+                  </label>
+                  <select
+                    className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    value={selected}
+                    onChange={(e) => setSelected(e.target.value)}
+                    disabled={!nodes.length}
+                  >
+                    {!nodes.length && (
+                      <option>
+                        {nodesError ? `Error: ${nodesError}` : "Loading nodes…"}
+                      </option>
+                    )}
+                    {nodes.map((n) => (
+                      <option key={n.name} value={n.name}>
+                        {n.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="block text-xs font-medium text-gray-700 mb-1">
+                  <p className="text-sm">
+                    <span className="font-medium">Distance:</span>{" "}
+                    {routeMeters != null ? `${routeMeters.toFixed(0)} ft` : "—"}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Walk time:</span>{" "}
+                    {routeMinutes != null ? `${routeMinutes.toFixed(1)} min` : "—"}
+                  </p>
+                </div>
+              </div>
+            </CollapsibleSection>
+
+            {/* Courses */}
+            <CollapsibleSection
+              title="Your Courses"
+              emoji="📚"
+              bgColor="bg-green-50"
+              borderColor="border-green-200"
+              textColor="text-green-800"
+              isExpanded={sectionStates.courses}
+              onToggle={() => toggleSection('courses')}
+            >
+              <form className="space-y-3" onSubmit={addCourse}>
+                <input
+                  className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="Course name (e.g., COMP 182)"
+                  value={newCourse.name}
+                  onChange={(e) =>
+                    setNewCourse((c) => ({ ...c, name: e.target.value }))
+                  }
+                  required
+                />
+                
+                <div className="grid grid-cols-3 gap-2">
+                  <select
+                    className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    value={newCourse.day}
+                    onChange={(e) =>
+                      setNewCourse((c) => ({ ...c, day: e.target.value }))
+                    }
+                  >
+                    {["Mon", "Tue", "Wed", "Thu", "Fri"].map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    placeholder="Start"
+                    value={newCourse.start}
+                    onChange={(e) =>
+                      setNewCourse((c) => ({ ...c, start: e.target.value }))
+                    }
+                  />
+                  <input
+                    className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    placeholder="End"
+                    value={newCourse.end}
+                    onChange={(e) =>
+                      setNewCourse((c) => ({ ...c, end: e.target.value }))
+                    }
+                  />
+                </div>
+                <button className="w-full rounded-lg py-2 bg-green-600 text-white font-medium shadow hover:shadow-md hover:bg-green-700 transition-all">
+                  Add Course
+                </button>
+              </form>
+
+              <div className="mt-4">
+                <ul className="divide-y bg-white border rounded-lg max-h-48 overflow-y-auto">
+                  {courses.length === 0 && (
+                    <li className="p-3 text-sm text-gray-500 text-center">
+                      No courses yet. Add one above.
+                    </li>
+                  )}
+                  {courses.map((c) => (
+                    <li
+                      key={c.id}
+                      className="p-3 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
+                      onClick={async () => {
+                        const loc = await fetchCourseLocation(c.name);
+                        if (loc) setSelected(loc); // Update Quick Walk ETA "To"
+                        setOrigin(origin || nodes[0]?.name); // Optional: ensure origin is set
+                      }}
+                    >
+                      <div>
+                        <div className="font-medium text-gray-900">{c.name}</div>
+                        <div className="text-xs text-gray-500">{c.day} {c.start}-{c.end}</div>
                       </div>
-                      
-                      <div className="text-xs text-gray-600 space-y-0.5">
-                        <div className="flex items-center gap-1">
-                          <span>📍 {event.location}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span>🕒 {isEventToday ? "Today" : eventDate.toLocaleDateString("en-US", { 
-                            month: "short", 
-                            day: "numeric" 
-                          })} • {formatEventTime(event.startTime, event.endTime)}</span>
-                        </div>
-                        {event.description && (
-                          <div className="text-gray-500 text-xs mt-1">
-                            {event.description}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); removeCourse(c.id); }}
+                        className="text-red-600 text-sm hover:text-red-800 px-2 py-1 rounded hover:bg-red-50"
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </CollapsibleSection>
+
+            {/* Events */}
+            <CollapsibleSection
+              title="Campus Events"
+              emoji="🎉"
+              bgColor="bg-yellow-50"
+              borderColor="border-yellow-200"
+              textColor="text-yellow-800"
+              isExpanded={sectionStates.events}
+              onToggle={() => toggleSection('events')}
+            >
+              <div className="flex gap-1 mb-3">
+                {[
+                  { key: "today", label: "Today" },
+                  { key: "upcoming", label: "Upcoming" },
+                  { key: "all", label: "All" }
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedEventDate(key)}
+                    className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                      selectedEventDate === key
+                        ? "bg-yellow-200 text-yellow-800 border-yellow-300"
+                        : "bg-white text-gray-600 border-gray-300 hover:bg-yellow-100"
+                    } border`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="bg-white border rounded-lg max-h-64 overflow-y-auto">
+                {filteredEvents.length === 0 && (
+                  <div className="p-3 text-sm text-gray-500 text-center">
+                    {selectedEventDate === "today" ? "No events today" : "No events found"}
+                  </div>
+                )}
+                
+                {filteredEvents.map((event) => {
+                  const typeStyle = getEventTypeStyle(event.type);
+                  const eventDate = new Date(event.date);
+                  const isEventToday = isToday(event.date);
+                  
+                  return (
+                    <div
+                      key={event.id}
+                      className="p-3 border-b last:border-b-0 hover:bg-gray-50 cursor-pointer"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className={`w-2 h-2 rounded-full ${typeStyle.dot}`}></div>
+                            <h4 className="font-medium text-gray-900 text-sm leading-tight">
+                              {event.name}
+                            </h4>
                           </div>
-                        )}
+                          
+                          <div className="text-xs text-gray-600 space-y-0.5">
+                            <div className="flex items-center gap-1">
+                              <span>📍 {event.location}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span>🕒 {isEventToday ? "Today" : eventDate.toLocaleDateString("en-US", { 
+                                month: "short", 
+                                day: "numeric" 
+                              })} • {formatEventTime(event.startTime, event.endTime)}</span>
+                            </div>
+                            {event.description && (
+                              <div className="text-gray-500 text-xs mt-1">
+                                {event.description}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeStyle.bg} ${typeStyle.text}`}>
+                          {event.type}
+                        </span>
                       </div>
                     </div>
-                    
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeStyle.bg} ${typeStyle.text}`}>
-                      {event.type}
-                    </span>
-                  </div>
+                  );
+                })}
+              </div>
+              
+              <div className="mt-3 pt-3 border-t border-yellow-200">
+               <a
+                  href = "https://owlnest.rice.edu/events"
+                  target = "_blank"
+                  rel = "noopener noreferrer"
+              >
+                <button className="w-full text-sm text-orange-600 hover:text-orange-700 font-medium bg-yellow-200 hover:bg-yellow-300 px-3 py-2 rounded transition-colors">
+                  View Full Calendar →
+                </button>
+              </a>
+            </div>
+            </CollapsibleSection>
+
+            {/* Serveries */}
+            <CollapsibleSection
+              title="Serveries & Hours"
+              emoji="🍽️"
+              bgColor="bg-orange-50"
+              borderColor="border-orange-200"
+              textColor="text-orange-800"
+              isExpanded={sectionStates.serveries}
+              onToggle={() => toggleSection('serveries')}
+            >
+              <div className="space-y-3">
+                <div className="bg-white p-3 border rounded-lg">
+                  <div className="font-medium text-orange-800 mb-2">South Servery</div>
+                  <ul className="text-sm space-y-1">
+                    <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:30 AM (Breakfast), 11:30 AM - 1:30 PM (Lunch), 2:00 PM - 4:00 PM (Munch), 4:00 PM - 5:00 PM (Snack), 5:30 PM - 9:00 PM (Extended Dinner)</li>
+                    <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
+                    <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> Closed</li>
+                  </ul>
                 </div>
-              );
-            })}
-          </div>
-          
-          <div className="mt-3 pt-3 border-t border-yellow-200">
-           <a
-              href = "https://owlnest.rice.edu/events"
-              target = "_blank"
-              rel = "noopener noreferrer"
-          >
-            <button className="w-full text-sm text-orange-600 hover:text-orange-700 font-medium bg-yellow-200 hover:bg-yellow-300 px-3 py-2 rounded transition-colors">
-              View Full Calendar →
-            </button>
-          </a>
-        </div>
-        </CollapsibleSection>
 
-        {/* Serveries */}
-        <CollapsibleSection
-          title="Serveries & Hours"
-          emoji="🍽️"
-          bgColor="bg-orange-50"
-          borderColor="border-orange-200"
-          textColor="text-orange-800"
-          isExpanded={sectionStates.serveries}
-          onToggle={() => toggleSection('serveries')}
+                <div className="bg-white p-3 border rounded-lg">
+                  <div className="font-medium text-orange-800 mb-2">North Servery</div>
+                  <ul className="text-sm space-y-1">
+                    <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:30 AM (Breakfast), 10:00 AM - 11:00 AM (Snack), 11:30 AM - 2:00 PM (Lunch), 5:00 PM - 8:00 PM (Dinner, Mon-Thu; Fri Dinner Closed)</li>
+                    <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> Closed</li>
+                    <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-3 border rounded-lg">
+                  <div className="font-medium text-orange-800 mb-2">Seibel Servery</div>
+                  <ul className="text-sm space-y-1">
+                    <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:00 AM (Enhanced Breakfast), 10:00 AM - 11:00 AM (Snack), 11:30 AM - 2:00 PM (Lunch), 5:00 PM - 8:00 PM (Dinner, Mon-Thu; Fri Dinner Closed)</li>
+                    <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> Closed</li>
+                    <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-3 border rounded-lg">
+                  <div className="font-medium text-orange-800 mb-2">West Servery</div>
+                  <ul className="text-sm space-y-1">
+                    <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:00 AM (Enhanced Breakfast), 11:30 AM - 1:30 PM (Lunch), 2:00 PM - 4:00 PM (Munch), 4:00 PM - 5:00 PM (Snack), 5:30 PM - 9:00 PM (Extended Dinner)</li>
+                    <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
+                    <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> Closed</li>
+                  </ul>
+                </div>
+              </div>
+            </CollapsibleSection>
+          </div>
+        )}
+        
+        {/* Drag handle */}
+        <div
+          ref={dragRef}
+          onMouseDown={handleMouseDown}
+          className="absolute top-0 right-0 w-1 h-full bg-gray-300 hover:bg-gray-400 cursor-col-resize transition-colors z-10"
+          style={{ 
+            cursor: 'col-resize',
+          }}
         >
-          <div className="space-y-3">
-            <div className="bg-white p-3 border rounded-lg">
-              <div className="font-medium text-orange-800 mb-2">South Servery</div>
-              <ul className="text-sm space-y-1">
-                <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:30 AM (Breakfast), 11:30 AM - 1:30 PM (Lunch), 2:00 PM - 4:00 PM (Munch), 4:00 PM - 5:00 PM (Snack), 5:30 PM - 9:00 PM (Extended Dinner)</li>
-                <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
-                <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> Closed</li>
-              </ul>
-            </div>
-
-            <div className="bg-white p-3 border rounded-lg">
-              <div className="font-medium text-orange-800 mb-2">North Servery</div>
-              <ul className="text-sm space-y-1">
-                <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:30 AM (Breakfast), 10:00 AM - 11:00 AM (Snack), 11:30 AM - 2:00 PM (Lunch), 5:00 PM - 8:00 PM (Dinner, Mon-Thu; Fri Dinner Closed)</li>
-                <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> Closed</li>
-                <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
-              </ul>
-            </div>
-
-            <div className="bg-white p-3 border rounded-lg">
-              <div className="font-medium text-orange-800 mb-2">Seibel Servery</div>
-              <ul className="text-sm space-y-1">
-                <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:00 AM (Enhanced Breakfast), 10:00 AM - 11:00 AM (Snack), 11:30 AM - 2:00 PM (Lunch), 5:00 PM - 8:00 PM (Dinner, Mon-Thu; Fri Dinner Closed)</li>
-                <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> Closed</li>
-                <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
-              </ul>
-            </div>
-
-            <div className="bg-white p-3 border rounded-lg">
-              <div className="font-medium text-orange-800 mb-2">West Servery</div>
-              <ul className="text-sm space-y-1">
-                <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:00 AM (Enhanced Breakfast), 11:30 AM - 1:30 PM (Lunch), 2:00 PM - 4:00 PM (Munch), 4:00 PM - 5:00 PM (Snack), 5:30 PM - 9:00 PM (Extended Dinner)</li>
-                <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
-                <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> Closed</li>
-              </ul>
-            </div>
-          </div>
-        </CollapsibleSection>
+          {/* Visual indicator for drag handle */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-8 bg-gray-500 rounded-full opacity-60"></div>
+        </div>
       </aside>
 
       {/* Map */}
-      <div style={{ flex: 1, height: "100vh", position: "relative" }}>
+      <div 
+        style={{ 
+          flex: 1, 
+          height: "100vh", 
+          position: "relative",
+          width: `calc(100vw - ${sidebarWidth}px)`,
+        }}
+      >
         <div
           ref={mapContainer}
           style={{ height: "100%", width: "100%", minHeight: "100vh" }}
         />
+        
+        {/* Show/Hide Sidebar Button when sidebar is hidden */}
+        {sidebarWidth === 0 && (
+          <button
+            onClick={() => setSidebarWidth(400)}
+            className="absolute top-4 left-4 bg-white/95 backdrop-blur rounded-lg p-3 shadow-lg border z-[1100] hover:bg-white transition-colors"
+            title="Show Sidebar"
+          >
+            <span className="text-xl">🦉</span>
+          </button>
+        )}
+        
         {/* Legend */}
         <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur rounded-lg p-4 shadow-lg border z-[1100]">
           <h4 className="font-semibold text-gray-800 mb-3">Legend</h4>
