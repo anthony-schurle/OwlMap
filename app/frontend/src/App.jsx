@@ -121,12 +121,49 @@ function getEventTypeStyle(type) {
   }
 }
 
+/* ==== COLLAPSIBLE SECTION COMPONENT ==== */
+function CollapsibleSection({ title, emoji, bgColor, borderColor, textColor, isExpanded, onToggle, children }) {
+  return (
+    <section className={`${bgColor} rounded-lg border ${borderColor}`}>
+      <button
+        onClick={onToggle}
+        className={`w-full p-4 text-left font-semibold ${textColor} flex items-center justify-between hover:opacity-80 transition-opacity ${bgColor}`}
+      >
+        <div className="flex items-center gap-2">
+          <span>{emoji}</span>
+          <span>{title}</span>
+        </div>
+        <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+          ▼
+        </span>
+      </button>
+      
+      <div className={`overflow-hidden transition-all duration-300 ${
+        isExpanded ? 'max-h-[800px] pb-4' : 'max-h-0'
+      }`}>
+        <div className="px-4">
+          {children}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ==== COMPONENT ==== */
 export default function RiceNavigatorApp() {
   const mapRef = useRef(null);
   const mapContainer = useRef(null);
   const markersRef = useRef([]);
   const pathLineRef = useRef(null);
+
+  // Collapsible state
+  const [sectionStates, setSectionStates] = useState({
+    walkEta: true,
+    courses: true,
+    events: true,
+    walkTime: false,
+    serveries: false,
+  });
 
   // Nodes from API: [{ name, coord:[lon,lat] }]
   const [nodes, setNodes] = useState([]);
@@ -191,6 +228,14 @@ export default function RiceNavigatorApp() {
   const [routeMinutes, setRouteMinutes] = useState(null);
 
   const campusCenter = useMemo(() => ({ lon: -95.4019, lat: 29.7186 }), []);
+
+  // Toggle section function
+  const toggleSection = (sectionKey) => {
+    setSectionStates(prev => ({
+      ...prev,
+      [sectionKey]: !prev[sectionKey]
+    }));
+  };
 
   /* ====== NAME → COORD MAP (from nodes) ====== */
   function rebuildNameToCoordMap(fetchedNodes) {
@@ -489,10 +534,15 @@ export default function RiceNavigatorApp() {
         </div>
 
         {/* Quick ETA */}
-        <section className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-          <h2 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
-            📍 Quick Walk ETA
-          </h2>
+        <CollapsibleSection
+          title="Quick Walk ETA"
+          emoji="📍"
+          bgColor="bg-blue-50"
+          borderColor="border-blue-200"
+          textColor="text-blue-800"
+          isExpanded={sectionStates.walkEta}
+          onToggle={() => toggleSection('walkEta')}
+        >
           <div className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -549,13 +599,18 @@ export default function RiceNavigatorApp() {
               </p>
             </div>
           </div>
-        </section>
+        </CollapsibleSection>
 
         {/* Courses */}
-        <section className="bg-green-50 p-4 rounded-lg border border-green-200">
-          <h2 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
-            📚 Your Courses
-          </h2>
+        <CollapsibleSection
+          title="Your Courses"
+          emoji="📚"
+          bgColor="bg-green-50"
+          borderColor="border-green-200"
+          textColor="text-green-800"
+          isExpanded={sectionStates.courses}
+          onToggle={() => toggleSection('courses')}
+        >
           <form className="space-y-3" onSubmit={addCourse}>
             <input
               className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:border-green-500"
@@ -628,14 +683,18 @@ export default function RiceNavigatorApp() {
               ))}
             </ul>
           </div>
-        </section>
+        </CollapsibleSection>
 
         {/* Events */}
-        <section className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-          <h2 className="font-semibold text-yellow-800 mb-3 flex items-center gap-2">
-            🎉 Campus Events
-          </h2>
-          
+        <CollapsibleSection
+          title="Campus Events"
+          emoji="🎉"
+          bgColor="bg-yellow-50"
+          borderColor="border-yellow-200"
+          textColor="text-yellow-800"
+          isExpanded={sectionStates.events}
+          onToggle={() => toggleSection('events')}
+        >
           <div className="flex gap-1 mb-3">
             {[
               { key: "today", label: "Today" },
@@ -715,28 +774,42 @@ export default function RiceNavigatorApp() {
               target = "_blank"
               rel = "noopener noreferrer"
           >
-            <button className="w-full text-sm text-yellow-700 hover:text-yellow-800 font-medium">
+            <button className="w-full text-sm text-orange-600 hover:text-orange-700 font-medium bg-yellow-200 hover:bg-yellow-300 px-3 py-2 rounded transition-colors">
               View Full Calendar →
             </button>
           </a>
         </div>
-        </section>
+        </CollapsibleSection>
 
         {/* Daily walking time summary */}
-        <section className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-          <h2 className="font-semibold text-purple-800 mb-3 flex items-center gap-2">
-            🚶‍♂️ Daily Walk Time
-          </h2>
+        <CollapsibleSection
+          title="Daily Walk Time"
+          emoji="🚶‍♂️"
+          bgColor="bg-purple-50"
+          borderColor="border-purple-200"
+          textColor="text-purple-800"
+          isExpanded={sectionStates.walkTime}
+          onToggle={() => toggleSection('walkTime')}
+        >
           <div className="bg-white border rounded-lg divide-y max-h-32 overflow-y-auto">
+            <div className="p-3 text-sm text-gray-500 text-center">
+              No walk time data available
+            </div>
           </div>
-        </section>
+        </CollapsibleSection>
 
         {/* Serveries */}
-        <section className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-          <h2 className="font-semibold text-orange-800 mb-3 flex items-center gap-2">
-            🍽️ Serveries & Hours
-          </h2>
+        <CollapsibleSection
+          title="Serveries & Hours"
+          emoji="🍽️"
+          bgColor="bg-orange-50"
+          borderColor="border-orange-200"
+          textColor="text-orange-800"
+          isExpanded={sectionStates.serveries}
+          onToggle={() => toggleSection('serveries')}
+        >
           <div className="flex flex-wrap gap-2 mb-3">
+            {/* Servery buttons would go here */}
           </div>
           {serveryInfo && (
             <div className="bg-white p-3 border rounded-lg">
@@ -762,7 +835,12 @@ export default function RiceNavigatorApp() {
               </div>
             </div>
           )}
-        </section>
+          {!serveryInfo && (
+            <div className="bg-white border rounded-lg p-3 text-sm text-gray-500 text-center">
+              No servery information available
+            </div>
+          )}
+        </CollapsibleSection>
       </aside>
 
       {/* Map */}
