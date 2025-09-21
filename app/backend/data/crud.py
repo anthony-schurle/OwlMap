@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from backend.data.database import SessionLocal
-from backend.data.models import Location, Edge
+from backend.data.models import Location, Edge, Course
 
 def init():
     db: Session = SessionLocal()
@@ -66,6 +66,7 @@ def init():
         ("Brown College", "Jones College", 320),
         ("McMurtry College", "Lovett College", 1728),
         ("McMurtry College", "Baker College", 1584),
+        ("Keck Hall", "Fondren Library", 574)
     ]
 
     # Insert edges if not already in DB
@@ -77,6 +78,20 @@ def init():
         if not exists:
             edge = Edge(location_1_id=loc1.id, location_2_id=loc2.id, distance=dist)
             db.add(edge)
+    
+    courses_data = [
+        ("COMP140", "Brockman Hall"),
+        ("MATH220", "Keck Hall"),
+        ("COMP222", "Keck Hall")
+    ]
+
+    for code, location_name in courses_data:
+        loc = locations.get(location_name)
+        if loc:
+            exists = db.query(Course).filter_by(code=code).first()
+            if not exists:
+                course = Course(code=code, location_id=loc.id)
+                db.add(course)
 
     db.commit()
     db.close()
@@ -90,3 +105,14 @@ def get_all_edges():
     db: Session = SessionLocal()
     edges = db.query(Edge).all()
     return [(db.query(Location).get(edge.location_1_id).name, db.query(Location).get(edge.location_2_id).name, edge.distance) for edge in edges]
+
+def get_course_location(course_code: str) -> str | None:
+    db: Session = SessionLocal()
+    course = db.query(Course).filter_by(code=course_code).first()
+    if not course:
+        db.close()
+        return None
+
+    location_name = db.query(Location).get(course.location_id).name
+    db.close()
+    return location_name

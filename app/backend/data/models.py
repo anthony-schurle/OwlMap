@@ -17,6 +17,8 @@ class Location(Base):
     edges_from = relationship("Edge", foreign_keys="[Edge.location_1_id]", back_populates="location_1")
     edges_to = relationship("Edge", foreign_keys="[Edge.location_2_id]", back_populates="location_2")
 
+    courses = relationship("Course", back_populates="location")
+
 
 class Edge(Base):
     __tablename__ = "edges"
@@ -29,3 +31,13 @@ class Edge(Base):
     # Direct relationships to locations
     location_1 = relationship("Location", foreign_keys=[location_1_id], back_populates="edges_from")
     location_2 = relationship("Location", foreign_keys=[location_2_id], back_populates="edges_to")
+
+class Course(Base):
+    __tablename__ = "courses"
+    
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False)
+    code = Column(String, nullable=False, unique=True)        # e.g., "CS101"
+    location_id = Column(UUID(as_uuid=True), ForeignKey("locations.id"), nullable=False)
+
+    # Relationship to the building/location
+    location = relationship("Location")
