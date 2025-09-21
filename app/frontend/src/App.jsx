@@ -121,6 +121,346 @@ function getEventTypeStyle(type) {
   }
 }
 
+// Location information database
+const LOCATION_INFO = {
+  // Serveries
+  "South Servery": {
+    type: "servery",
+    emoji: "🍽️",
+    color: "#22c55e",
+    description: "The largest servery on campus, offering extensive dining options throughout the day.",
+    hours: {
+      "Monday-Friday": "7:30 AM - 10:30 AM (Breakfast), 11:30 AM - 1:30 PM (Lunch), 2:00 PM - 4:00 PM (Munch), 4:00 PM - 5:00 PM (Snack), 5:30 PM - 9:00 PM (Extended Dinner)",
+      "Saturday": "8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)",
+      "Sunday": "Closed"
+    },
+    features: ["Wok on Rice", "Owl Masala", "International Cuisine Specials"]
+  },
+  
+  "North Servery": {
+    type: "servery",
+    emoji: "🍽️",
+    color: "#22c55e",
+    description: "Located in the northern part of campus, serving residential colleges nearby.",
+    hours: {
+      "Monday-Friday": "7:30 AM - 10:30 AM (Breakfast), 10:00 AM - 11:00 AM (Snack), 11:30 AM - 2:00 PM (Lunch), 5:00 PM - 8:00 PM (Dinner, Mon-Thu; Fri Dinner Closed)",
+      "Saturday": "Closed",
+      "Sunday": "8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)"
+    },
+    features: ["Wok on Rice", "Owl Masala", "Variety for dietary preferences"]
+  },
+
+  "West Servery": {
+    type: "servery",
+    emoji: "🍽️",
+    color: "#22c55e",
+    description: "Conveniently located servery with extended dinner hours for busy students.",
+    hours: {
+      "Monday-Friday": "7:30 AM - 10:00 AM (Enhanced Breakfast), 11:30 AM - 1:30 PM (Lunch), 2:00 PM - 4:00 PM (Munch), 4:00 PM - 5:00 PM (Snack), 5:30 PM - 9:00 PM (Extended Dinner)",
+      "Saturday": "8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)",
+      "Sunday": "Closed"
+    },
+    features: ["Enhanced breakfast", "Extended dinner", "Stir fry station"]
+  },
+
+  "Seibel Servery": {
+    type: "servery",
+    emoji: "🍽️",
+    color: "#22c55e",
+    description: "Modern servery with enhanced breakfast options and flexible dining schedules.",
+    hours: {
+      "Monday-Friday": "7:30 AM - 10:00 AM (Enhanced Breakfast), 10:00 AM - 11:00 AM (Snack), 11:30 AM - 2:00 PM (Lunch), 5:00 PM - 8:00 PM (Dinner, Mon-Thu; Fri Dinner Closed)",
+      "Saturday": "Closed",
+      "Sunday": "8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)"
+    },
+    features: ["Enhanced breakfast", "Wing Wednesday", "Stir fry station"]
+  },
+
+  "Baker Servery": {
+  type: "servery",
+  emoji: "🍽️",
+  color: "#22c55e",
+  description: "Community servery providing full-meal service with late night options during weekdays.",
+  hours: {
+    "Monday-Friday": "7:30 AM - 10:30 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 5:00 PM - 8:00 PM (Dinner), 9:00 PM - 11:00 PM (Late Night, Mon-Thu)",
+    "Saturday": "Closed",
+    "Sunday": "Closed"
+  },
+  "features": ["Full-meal service", "Late Night Dining (Mon-Thu)", "Closed weekends"]
+},
+
+  // Academic Buildings
+  "Duncan Hall": {
+    type: "academic",
+    emoji: "📚",
+    color: "#3b82f6",
+    description: "Home to the Department of Computer Science and other engineering disciplines.",
+    hours: {
+      "Monday-Friday": "6:00 AM - 11:00 PM",
+      "Saturday-Sunday": "7:00 AM - 10:00 PM"
+    },
+    features: ["Computer labs", "Lecture halls", "Faculty offices", "Student study spaces"],
+    departments: ["Computer Science", "Computational Applied Mathematics", "Statistics"]
+  },
+
+  "Oshman Engineering and Design Kitchen": {
+  type: "academic",
+  emoji: "📚",
+  color: "#3b82f6",
+  description: "Rice’s makerspace and engineering design hub supporting hands-on learning and prototyping.",
+  hours: {
+    "Monday-Friday": "8:00 AM - 10:00 PM",
+    "Saturday-Sunday": "10:00 AM - 6:00 PM"
+  },
+  features: ["Machine shop", "3D printers", "Electronics lab", "Collaborative project spaces"],
+  departments: ["Engineering Design", "Capstone Projects", "Maker Programs"]
+},
+
+"Herzstein Hall": {
+  type: "academic",
+  emoji: "📚",
+  color: "#3b82f6",
+  description: "Historic science building housing Physics and Astronomy, with classrooms and lecture spaces.",
+  hours: {
+    "Monday-Friday": "7:00 AM - 10:00 PM",
+    "Saturday-Sunday": "8:00 AM - 8:00 PM"
+  },
+  features: ["Large lecture halls", "Physics labs", "Planetarium dome (public shows)", "Faculty offices"],
+  departments: ["Physics", "Astronomy"]
+},
+
+"Keck Hall": {
+  type: "academic",
+  emoji: "📚",
+  color: "#3b82f6",
+  description: "Core hub for biosciences and chemistry with teaching labs and interdisciplinary research facilities.",
+  hours: {
+    "Monday-Friday": "7:00 AM - 10:00 PM",
+    "Saturday-Sunday": "8:00 AM - 6:00 PM"
+  },
+  features: ["Biology labs", "Chemistry teaching spaces", "Research facilities", "Student lounges"],
+  departments: ["Biosciences", "Chemistry"]
+},
+
+"Brockman Hall": {
+  type: "academic",
+  emoji: "📚",
+  color: "#2563eb",
+  description: "Interdisciplinary research building supporting physical sciences, math, and nanotechnology.",
+  hours: {
+    "Monday-Friday": "7:00 AM - 9:00 PM",
+    "Saturday-Sunday": "Closed"
+  },
+  features: ["Nanotechnology labs", "Collaborative research spaces", "Faculty offices"],
+  departments: ["Physics", "Mathematics", "Astronomy", "NanoScience"]
+},
+
+"Rayzor Hall": {
+  type: "academic",
+  emoji: "📚",
+  color: "#3b82f6",
+  description: "Home to humanities and social sciences, fostering global studies and language programs.",
+  hours: {
+    "Monday-Friday": "7:00 AM - 9:00 PM",
+    "Saturday-Sunday": "Closed"
+  },
+  features: ["Language classrooms", "Seminar rooms", "Faculty offices", "Lecture halls"],
+  departments: ["History", "Philosophy", "Modern and Classical Literatures and Cultures", "Religion"]
+},
+
+"Biosciences Research Collaborative (BRC)": {
+  type: "academic",
+  emoji: "📚",
+  color: "#3b82f6",
+  description: "State-of-the-art research facility bridging Rice and the Texas Medical Center for biomedical innovation.",
+  hours: {
+    "Monday-Friday": "6:00 AM - 11:00 PM",
+    "Saturday-Sunday": "8:00 AM - 8:00 PM"
+  },
+  features: ["Biomedical research labs", "Collaboration spaces", "Conference facilities"],
+  departments: ["Bioengineering", "Biosciences", "Collaborative Medical Research Programs"]
+},
+
+  "Fondren Library": {
+    type: "academic",
+    emoji: "📚",
+    color: "#3b82f6",
+    description: "Rice's main library featuring extensive research collections and study spaces.",
+    hours: {
+      "Sunday": "10:00 AM - 2:00 AM",
+      "Monday": "7:00 AM - 2:00 AM",
+      "Tuesday": "7:00 AM - 2:00 AM",
+      "Wednesday": "7:00 AM - 2:00 AM",
+      "Thursday": "7:00 AM - 2:00 AM",
+      "Friday": "7:00 AM - 12:00 AM",
+      "Saturday": "9:00 AM - 12:00 AM"
+    },
+    features: ["24/7 study rooms", "Research assistance", "Digital collections", "Group study areas", "Quiet zones"],
+    floors: ["Ground: Reference & circulation", "1st: Periodicals & newspapers", "2nd-5th: Research collections", "6th: Special collections"]
+  },
+
+  "Rice Memorial Center": {
+    type: "student_life",
+    emoji: "🎓",
+    color: "#8b5cf6",
+    description: "The heart of student life at Rice, housing dining, events, and student organizations.",
+    hours: {
+      "Monday-Friday": "6:00 AM - 12:00 AM",
+      "Saturday-Sunday": "8:00 AM - 12:00 AM"
+    },
+    features: ["Student organization offices", "Event spaces", "Bookstore", "Post office", "Game room"],
+    services: ["Career services events", "Student activities", "Meeting rooms", "Campus store"]
+  },
+
+  "Tudor Fieldhouse": {
+    type: "athletics",
+    emoji: "🏀",
+    color: "#ef4444",
+    description: "Rice's main athletics facility hosting volleyball, basketball, and other sports.",
+    hours: {
+      "Monday-Friday": "6:00 AM - 11:00 PM",
+      "Saturday-Sunday": "8:00 AM - 10:00 PM"
+    },
+    features: ["Volleyball court", "Basketball court", "Fitness equipment", "Locker rooms"],
+    sports: ["Volleyball", "Basketball", "Intramural sports", "Recreation programs"]
+  },
+
+  "Recreation Center": {
+    type: "athletics",
+    emoji: "🏋️",
+    color: "#ef4444",
+    description: "Rice's main recreation and fitness facility with extensive workout equipment and programs.",
+    hours: {
+      "Monday-Thursday": "6:00 AM - 12:00 AM",
+      "Friday": "6:00 AM - 10:00 PM",
+      "Saturday": "8:00 AM - 10:00 PM",
+      "Sunday": "10:00 AM - 10:00 PM"
+    },
+    features: ["Fitness equipment", "Group exercise classes", "Indoor track", "Basketball courts", "Racquetball courts", "Swimming pool", "Rock climbing wall"],
+    services: ["Personal training", "Fitness assessments", "Equipment orientation", "Intramural sports registration"]
+  },
+
+  "Dell Butcher Hall": {
+    type: "academic",
+    emoji: "📚",
+    color: "#3b82f6",
+    description: "Modern engineering building with state-of-the-art laboratories and classrooms.",
+    hours: {
+      "Monday-Friday": "6:00 AM - 11:00 PM",
+      "Saturday-Sunday": "7:00 AM - 10:00 PM"
+    },
+    features: ["Engineering labs", "Clean rooms", "3D printing facilities", "Collaborative workspaces"],
+    departments: ["Bioengineering", "Materials Science", "Mechanical Engineering"]
+  },
+
+  "Anderson Biological Laboratories": {
+    type: "academic",
+    emoji: "📚",
+    color: "#3b82f6",
+    description: "Primary location for biological sciences with research and teaching laboratories.",
+    hours: {
+      "Monday-Friday": "6:00 AM - 11:00 PM",
+      "Saturday-Sunday": "8:00 AM - 10:00 PM"
+    },
+    features: ["Research laboratories", "Teaching labs", "Microscopy facilities", "Greenhouse"],
+    departments: ["Biology", "Biochemistry", "Environmental Science"]
+  }
+};
+
+// Function to create detailed popup content
+function createDetailedPopup(name, locationInfo) {
+  if (!locationInfo) {
+    return `<div style="max-width: 200px;"><h3 style="margin: 0 0 8px 0; font-weight: bold; color: #1f2937;">${name}</h3></div>`;
+  }
+
+  const { type, description, hours, features, departments, services, sports, floors } = locationInfo;
+  
+  let hoursHtml = '';
+  if (hours) {
+    hoursHtml = `
+      <div style="margin: 8px 0;">
+        <strong style="color: #374151;">Hours:</strong>
+        ${Object.entries(hours).map(([day, time]) => 
+          `<div style="margin: 2px 0; font-size: 12px;"><span style="font-weight: 500;">${day}:</span> ${time}</div>`
+        ).join('')}
+      </div>
+    `;
+  }
+
+  let featuresHtml = '';
+  if (features && features.length > 0) {
+    featuresHtml = `
+      <div style="margin: 8px 0;">
+        <strong style="color: #374151;">Features:</strong>
+        <ul style="margin: 4px 0 0 0; padding-left: 16px; font-size: 12px;">
+          ${features.map(feature => `<li style="margin: 1px 0;">${feature}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  let departmentsHtml = '';
+  if (departments && departments.length > 0) {
+    departmentsHtml = `
+      <div style="margin: 8px 0;">
+        <strong style="color: #374151;">Departments:</strong>
+        <ul style="margin: 4px 0 0 0; padding-left: 16px; font-size: 12px;">
+          ${departments.map(dept => `<li style="margin: 1px 0;">${dept}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  let servicesHtml = '';
+  if (services && services.length > 0) {
+    servicesHtml = `
+      <div style="margin: 8px 0;">
+        <strong style="color: #374151;">Services:</strong>
+        <ul style="margin: 4px 0 0 0; padding-left: 16px; font-size: 12px;">
+          ${services.map(service => `<li style="margin: 1px 0;">${service}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  let sportsHtml = '';
+  if (sports && sports.length > 0) {
+    sportsHtml = `
+      <div style="margin: 8px 0;">
+        <strong style="color: #374151;">Sports & Activities:</strong>
+        <ul style="margin: 4px 0 0 0; padding-left: 16px; font-size: 12px;">
+          ${sports.map(sport => `<li style="margin: 1px 0;">${sport}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  let floorsHtml = '';
+  if (floors && floors.length > 0) {
+    floorsHtml = `
+      <div style="margin: 8px 0;">
+        <strong style="color: #374151;">Floor Guide:</strong>
+        <ul style="margin: 4px 0 0 0; padding-left: 16px; font-size: 12px;">
+          ${floors.map(floor => `<li style="margin: 1px 0;">${floor}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  return `
+    <div style="max-width: 300px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+      <h3 style="margin: 0 0 8px 0; font-weight: bold; color: #1f2937; font-size: 16px;">${name}</h3>
+      <p style="margin: 0 0 8px 0; font-size: 13px; color: #4b5563; line-height: 1.4;">${description}</p>
+      ${hoursHtml}
+      ${featuresHtml}
+      ${departmentsHtml}
+      ${servicesHtml}
+      ${sportsHtml}
+      ${floorsHtml}
+    </div>
+  `;
+}
+
 /* ==== COLLAPSIBLE SECTION COMPONENT ==== */
 async function fetchCourseLocation(courseCode) {
   try {
@@ -426,15 +766,25 @@ export default function RiceNavigatorApp() {
         if (!origin && parsed[0]?.name) setOrigin(parsed[0].name);
         if (!selected && parsed[1]?.name) setSelected(parsed[1].name);
 
-        // Optional: add small node markers
+        // Add detailed markers for each node
         const map = mapRef.current;
         if (map) {
           parsed.forEach((n) => {
-            L.marker([n.coord[1], n.coord[0]], {
-              icon: createCustomMarker("#6366f1", "📍", 20),
-            })
+            const locationInfo = LOCATION_INFO[n.name];
+            const marker = locationInfo 
+              ? createCustomMarker(locationInfo.color, locationInfo.emoji, 30)
+              : createCustomMarker("#6366f1", "📍", 20);
+            
+            const popupContent = createDetailedPopup(n.name, locationInfo);
+            
+            L.marker([n.coord[1], n.coord[0]], { icon: marker })
               .addTo(map)
-              .bindPopup(`<strong>${n.name}</strong>`);
+              .bindPopup(popupContent, {
+                maxWidth: 320,
+                minWidth: 250,
+                autoPan: true,
+                keepInView: true
+              });
           });
         }
       } catch (e) {
@@ -820,6 +1170,16 @@ export default function RiceNavigatorApp() {
                     <div
                       key={event.id}
                       className="p-3 border-b last:border-b-0 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => {
+                        // Find the location in LOCATION_INFO and set it as destination
+                        const locationName = Object.keys(LOCATION_INFO).find(key => 
+                          key.toLowerCase().includes(event.location.toLowerCase()) ||
+                          event.location.toLowerCase().includes(key.toLowerCase())
+                        );
+                        if (locationName) {
+                          setSelected(locationName);
+                        }
+                      }}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -881,41 +1241,37 @@ export default function RiceNavigatorApp() {
               onToggle={() => toggleSection('serveries')}
             >
               <div className="space-y-3">
-                <div className="bg-white p-3 border rounded-lg">
-                  <div className="font-medium text-orange-800 mb-2">South Servery</div>
-                  <ul className="text-sm space-y-1">
-                    <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:30 AM (Breakfast), 11:30 AM - 1:30 PM (Lunch), 2:00 PM - 4:00 PM (Munch), 4:00 PM - 5:00 PM (Snack), 5:30 PM - 9:00 PM (Extended Dinner)</li>
-                    <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
-                    <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> Closed</li>
-                  </ul>
-                </div>
-
-                <div className="bg-white p-3 border rounded-lg">
-                  <div className="font-medium text-orange-800 mb-2">North Servery</div>
-                  <ul className="text-sm space-y-1">
-                    <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:30 AM (Breakfast), 10:00 AM - 11:00 AM (Snack), 11:30 AM - 2:00 PM (Lunch), 5:00 PM - 8:00 PM (Dinner, Mon-Thu; Fri Dinner Closed)</li>
-                    <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> Closed</li>
-                    <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
-                  </ul>
-                </div>
-
-                <div className="bg-white p-3 border rounded-lg">
-                  <div className="font-medium text-orange-800 mb-2">Seibel Servery</div>
-                  <ul className="text-sm space-y-1">
-                    <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:00 AM (Enhanced Breakfast), 10:00 AM - 11:00 AM (Snack), 11:30 AM - 2:00 PM (Lunch), 5:00 PM - 8:00 PM (Dinner, Mon-Thu; Fri Dinner Closed)</li>
-                    <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> Closed</li>
-                    <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
-                  </ul>
-                </div>
-
-                <div className="bg-white p-3 border rounded-lg">
-                  <div className="font-medium text-orange-800 mb-2">West Servery</div>
-                  <ul className="text-sm space-y-1">
-                    <li className="text-black"><span className="font-bold text-gray-700">Mon-Fri:</span> 7:30 AM - 10:00 AM (Enhanced Breakfast), 11:30 AM - 1:30 PM (Lunch), 2:00 PM - 4:00 PM (Munch), 4:00 PM - 5:00 PM (Snack), 5:30 PM - 9:00 PM (Extended Dinner)</li>
-                    <li className="text-black"><span className="font-bold text-gray-700">Sat:</span> 8:00 AM - 11:00 AM (Breakfast), 11:30 AM - 2:00 PM (Lunch), 3:00 PM - 5:00 PM (Munch), 5:30 PM - 8:30 PM (Dinner)</li>
-                    <li className="text-black"><span className="font-bold text-gray-700">Sun:</span> Closed</li>
-                  </ul>
-                </div>
+                {Object.entries(LOCATION_INFO)
+                  .filter(([_, info]) => info.type === "servery")
+                  .map(([name, info]) => (
+                    <div 
+                      key={name}
+                      className="bg-white p-3 border rounded-lg hover:bg-orange-50 cursor-pointer transition-colors"
+                      onClick={() => setSelected(name)}
+                    >
+                      <div className="font-medium text-orange-800 mb-2 flex items-center gap-2">
+                        <span>{info.emoji}</span>
+                        {name}
+                      </div>
+                      <p className="text-xs text-gray-600 mb-2">{info.description}</p>
+                      <div className="text-xs space-y-1">
+                        {Object.entries(info.hours).map(([day, time]) => (
+                          <div key={day} className="text-black">
+                            <span className="font-bold text-gray-700">{day}:</span> {time}
+                          </div>
+                        ))}
+                      </div>
+                      {info.features && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {info.features.map((feature, idx) => (
+                            <span key={idx} className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
+                              {feature}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
               </div>
             </CollapsibleSection>
           </div>
@@ -965,12 +1321,20 @@ export default function RiceNavigatorApp() {
           <h4 className="font-semibold text-gray-800 mb-3">Legend</h4>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
-              <div className="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow"></div>
-              <span className="text-black">🏛️ Academic Buildings</span>
+              <div className="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow flex items-center justify-center text-xs">📚</div>
+              <span className="text-black">Academic Buildings</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow"></div>
-              <span className="text-black">🍽️ Serveries</span>
+              <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow flex items-center justify-center text-xs">🍽️</div>
+              <span className="text-black">Serveries</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-4 h-4 bg-purple-500 rounded-full border-2 border-white shadow flex items-center justify-center text-xs">🎓</div>
+              <span className="text-black">Student Life</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <div className="w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow flex items-center justify-center text-xs">🏋️</div>
+              <span className="text-black">Athletics</span>
             </div>
           </div>
         </div>
