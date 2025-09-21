@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 
 from backend.logic import main
 
-from backend.data.crud import init
+from backend.data.crud import init, get_course_location
 from backend.data.database import engine, Base
 
 app = FastAPI()
@@ -30,3 +30,9 @@ def navigate(start_str: str, end_str: str):
     path, distance = interface.navigate(start_str, end_str)
 
     return {"path": [node.name for node in path], "distance": distance}
+
+@app.get("/course-location")
+def course_location(code: str):
+    loc_name = get_course_location(code)
+
+    return {"location-name": loc_name}
