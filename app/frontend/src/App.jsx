@@ -4,8 +4,6 @@ import "leaflet/dist/leaflet.css";
 
 /** Owl Map – React + Leaflet + Tailwind */
 
-// Set this to "" if you use a Vite proxy for /api
-
 /* ==== LEAFLET MARKER ASSETS ==== */
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -17,7 +15,6 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-/* ==== STATIC REFERENCE (featured markers) ==== */
 const BUILDINGS = [
   { id: "DuncanHall", name: "Duncan Hall (CS)", coord: [-95.40134, 29.72069] },
   { id: "Herzstein", name: "Herzstein Hall", coord: [-95.39938, 29.71897] },
@@ -44,7 +41,6 @@ const SERVERIES = [
         "Breakfast: 8:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Munch: 3:00 PM - 5:00 PM, Dinner: 5:30 PM - 8:30 PM",
     },
   },
-  // ... (rest unchanged)
   {
     id: "SeibelServery",
     name: "Seibel Servery",
@@ -168,6 +164,38 @@ function pathLengthMetersLonLat(pathLonLat) {
   return total;
 }
 
+// Events helper functions
+function formatEventTime(startTime, endTime) {
+  const formatTime = (time) => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
+  
+  return `${formatTime(startTime)} - ${formatTime(endTime)}`;
+}
+
+function isToday(dateString) {
+  const today = new Date();
+  const eventDate = new Date(dateString);
+  return today.toDateString() === eventDate.toDateString();
+}
+
+function getEventTypeStyle(type) {
+  switch (type) {
+    case "academic":
+      return { bg: "bg-blue-100", text: "text-blue-800", dot: "bg-blue-500" };
+    case "career":
+      return { bg: "bg-green-100", text: "text-green-800", dot: "bg-green-500" };
+    case "sports":
+      return { bg: "bg-red-100", text: "text-red-800", dot: "bg-red-500" };
+    default:
+      return { bg: "bg-gray-100", text: "text-gray-800", dot: "bg-gray-500" };
+  }
+}
+
 /* ==== COMPONENT ==== */
 export default function RiceNavigatorApp() {
   const mapRef = useRef(null);
@@ -194,6 +222,45 @@ export default function RiceNavigatorApp() {
     end: "10:50",
   });
   const [serveryInfo, setServeryInfo] = useState(null);
+
+  // Events state
+  const [events, setEvents] = useState([
+    {
+      id: 1,
+      name: "COMP 182 Review Session",
+      location: "Duncan Hall (CS)",
+      buildingId: "DuncanHall",
+      date: "2025-09-22",
+      startTime: "14:00",
+      endTime: "15:30",
+      type: "academic",
+      description: "Review session for upcoming exam"
+    },
+    {
+      id: 2,
+      name: "Career Fair",
+      location: "Rice Memorial Center", 
+      buildingId: "RiceMC",
+      date: "2025-09-23",
+      startTime: "10:00",
+      endTime: "16:00",
+      type: "career",
+      description: "Annual career fair with 50+ companies"
+    },
+    {
+      id: 3,
+      name: "Rice Volleyball vs Houston",
+      location: "Tudor Fieldhouse",
+      buildingId: "Gibbs",
+      date: "2025-09-24", 
+      startTime: "19:00",
+      endTime: "21:00",
+      type: "sports",
+      description: "Home volleyball match"
+    }
+  ]);
+
+  const [selectedEventDate, setSelectedEventDate] = useState("today");
 
   // Distance/time for the current route
   const [routeMeters, setRouteMeters] = useState(null);
@@ -229,6 +296,31 @@ export default function RiceNavigatorApp() {
     const latLngs = coordsLonLat.map(([lon, lat]) => [lat, lon]);
     return { latLngs, coordsLonLat, missing };
   }
+
+  // Filtered events computed value
+  const filteredEvents = useMemo(() => {
+    const now = new Date();
+    const today = now.toDateString();
+    
+    return events.filter(event => {
+      const eventDate = new Date(event.date);
+      
+      switch (selectedEventDate) {
+        case "today":
+          return eventDate.toDateString() === today;
+        case "upcoming":
+          return eventDate >= now;
+        case "all":
+          return true;
+        default:
+          return true;
+      }
+    }).sort((a, b) => {
+      const dateCompare = new Date(a.date) - new Date(b.date);
+      if (dateCompare !== 0) return dateCompare;
+      return a.startTime.localeCompare(b.startTime);
+    });
+  }, [events, selectedEventDate]);
 
   /* ====== FETCH NODES ON MOUNT ====== */
   useEffect(() => {
@@ -489,50 +581,11 @@ export default function RiceNavigatorApp() {
   }, [origin, selected, nodes]); // rerun when nodes map first loads
 
   /* ====== COURSES / SUMMARY (unchanged) ====== */
-  function isValidTime24(str) {
-  // Must be "HH:MM" 24-hour format
-  if (typeof str !== "string") return false;
-  const regex = /^([0-1]\d|2[0-3]):([0-5]\d)$/;
-  return regex.test(str);
-}
-
-function addCourse(e) {
-  e?.preventDefault?.();
-
-  const { start, end, day, name, buildingId } = newCourse;
-
-  // Validate 24-hour times
-  if (!isValidTime24(start) || !isValidTime24(end)) {
-    alert("Please enter valid start and end times in 24-hour format (HH:MM).");
-    return;
+  function addCourse(e) {
+    e?.preventDefault?.();
+    const id = `${newCourse.name}-${Date.now()}`;
+    setCourses((prev) => [...prev, { id, ...newCourse }]);
   }
-
-  const newStart = parseTimeToMinutes(start);
-  const newEnd = parseTimeToMinutes(end);
-
-  if (newStart >= newEnd) {
-    alert("Start time must be before end time.");
-    return;
-  }
-
-  // Check for conflicts on the same day
-  const conflict = courses.some(c => {
-    if (c.day !== day) return false;
-    const existingStart = parseTimeToMinutes(c.start);
-    const existingEnd = parseTimeToMinutes(c.end);
-    return newStart < existingEnd && newEnd > existingStart;
-  });
-
-  if (conflict) {
-    alert("This course overlaps with an existing course on the same day!");
-    return;
-  }
-
-  // Add course
-  const id = `${name}-${Date.now()}`;
-  setCourses(prev => [...prev, { id, ...newCourse }]);
-}
-
   function removeCourse(id) {
     setCourses((prev) => prev.filter((c) => c.id !== id));
   }
@@ -651,84 +704,185 @@ function addCourse(e) {
         </section>
 
         {/* Courses */}
-       <section className="bg-green-50 p-4 rounded-lg border border-green-200">
-         <h2 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
-           📚 Your Activities
-         </h2>
-         <form className="space-y-3" onSubmit={addCourse}>
-           <input
-             className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:border-green-500"
-             placeholder="Course name (e.g., COMP 182)"
-             value={newCourse.name}
-             onChange={(e) => setNewCourse((c) => ({ ...c, name: e.target.value }))}
-             required
-           />
-           <select
-             className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:border-green-500"
-             value={newCourse.buildingId}
-             onChange={(e) => setNewCourse((c) => ({ ...c, buildingId: e.target.value }))}
-           >
-             {BUILDINGS.map((b) => (
-               <option key={b.id} value={b.id}>{b.name}</option>
-             ))}
-           </select>
-           <div className="grid grid-cols-3 gap-2">
-             <select
-               className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-               value={newCourse.day}
-               onChange={(e) => setNewCourse((c) => ({ ...c, day: e.target.value }))}
-             >
-               {["Mon", "Tue", "Wed", "Thu", "Fri"].map((d) => (
-                 <option key={d} value={d}>{d}</option>
-               ))}
-             </select>
-             <input
-               className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-               placeholder="Start"
-               value={newCourse.start}
-               onChange={(e) => setNewCourse((c) => ({ ...c, start: e.target.value }))}
-             />
-             <input
-               className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-               placeholder="End"
-               value={newCourse.end}
-               onChange={(e) => setNewCourse((c) => ({ ...c, end: e.target.value }))}
-             />
-           </div>
-           <button className="w-full rounded-lg py-2 bg-green-600 text-white font-medium shadow hover:shadow-md hover:bg-green-700 transition-all">
-             Add Course
-           </button>
-         </form>
+        <section className="bg-green-50 p-4 rounded-lg border border-green-200">
+          <h2 className="font-semibold text-green-800 mb-3 flex items-center gap-2">
+            📚 Your Courses
+          </h2>
+          <form className="space-y-3" onSubmit={addCourse}>
+            <input
+              className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              placeholder="Course name (e.g., COMP 182)"
+              value={newCourse.name}
+              onChange={(e) =>
+                setNewCourse((c) => ({ ...c, name: e.target.value }))
+              }
+              required
+            />
+            
+            <div className="grid grid-cols-3 gap-2">
+              <select
+                className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                value={newCourse.day}
+                onChange={(e) =>
+                  setNewCourse((c) => ({ ...c, day: e.target.value }))
+                }
+              >
+                {["Mon", "Tue", "Wed", "Thu", "Fri"].map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+              <input
+                className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Start"
+                value={newCourse.start}
+                onChange={(e) =>
+                  setNewCourse((c) => ({ ...c, start: e.target.value }))
+                }
+              />
+              <input
+                className="border rounded-lg px-2 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="End"
+                value={newCourse.end}
+                onChange={(e) =>
+                  setNewCourse((c) => ({ ...c, end: e.target.value }))
+                }
+              />
+            </div>
+            <button className="w-full rounded-lg py-2 bg-green-600 text-white font-medium shadow hover:shadow-md hover:bg-green-700 transition-all">
+              Add Course
+            </button>
+          </form>
 
+          <div className="mt-4">
+            <ul className="divide-y bg-white border rounded-lg max-h-48 overflow-y-auto">
+              {courses.length === 0 && (
+                <li className="p-3 text-sm text-gray-500 text-center">
+                  No courses yet. Add one above.
+                </li>
+              )}
+              {courses.map((c) => (
+                <li
+                  key={c.id}
+                  className="p-3 flex items-center justify-between hover:bg-gray-50"
+                >
+                  <div>
+                    <div className="font-medium text-gray-900">{c.name}</div>
+                    <div className="text-xs text-gray-600">
+                      {c.day} {c.start}–{c.end} •{" "}
+                      {BUILDINGS.find((b) => b.id === c.buildingId)?.name}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => removeCourse(c.id)}
+                    className="text-red-600 text-sm hover:text-red-800 px-2 py-1 rounded hover:bg-red-50"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
 
-         <div className="mt-4">
-           <ul className="divide-y bg-white border rounded-lg max-h-48 overflow-y-auto">
-             {courses.length === 0 && (
-               <li className="p-3 text-sm text-gray-500 text-center">No courses yet. Add one above.</li>
-             )}
-             {courses.map((c) => (
-               <li key={c.id} className="p-3 flex items-center justify-between hover:bg-gray-50">
-                 <div>
-                   <div className="font-medium text-gray-900">{c.name}</div>
-                   <div className="text-xs text-gray-600">
-                     {c.day} {c.start}–{c.end} • {BUILDINGS.find((b) => b.id === c.buildingId)?.name}
-                   </div>
-                 </div>
-                 <button
-                   onClick={() => removeCourse(c.id)}
-                   className="text-red-600 text-sm hover:text-red-800 px-2 py-1 rounded hover:bg-red-50"
-                 >
-                   Remove
-                 </button>
-               </li>
-             ))}
-           </ul>
-         </div>
-       </section>
+        {/* Events */}
+        <section className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+          <h2 className="font-semibold text-yellow-800 mb-3 flex items-center gap-2">
+            🎉 Campus Events
+          </h2>
+          
+          <div className="flex gap-1 mb-3">
+            {[
+              { key: "today", label: "Today" },
+              { key: "upcoming", label: "Upcoming" },
+              { key: "all", label: "All" }
+            ].map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setSelectedEventDate(key)}
+                className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                  selectedEventDate === key
+                    ? "bg-yellow-200 text-yellow-800 border-yellow-300"
+                    : "bg-white text-gray-600 border-gray-300 hover:bg-yellow-100"
+                } border`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
-
-        {/* Courses (unchanged UI) */}
-        {/* ... keep your existing Courses and Servery sections as-is ... */}
+          <div className="bg-white border rounded-lg max-h-64 overflow-y-auto">
+            {filteredEvents.length === 0 && (
+              <div className="p-3 text-sm text-gray-500 text-center">
+                {selectedEventDate === "today" ? "No events today" : "No events found"}
+              </div>
+            )}
+            
+            {filteredEvents.map((event) => {
+              const typeStyle = getEventTypeStyle(event.type);
+              const eventDate = new Date(event.date);
+              const isEventToday = isToday(event.date);
+              
+              return (
+                <div
+                  key={event.id}
+                  className="p-3 border-b last:border-b-0 hover:bg-gray-50 cursor-pointer"
+                  onClick={() => {
+                    const building = BUILDINGS.find(b => b.id === event.buildingId);
+                    if (building && building.name !== selected) {
+                      setSelected(building.name);
+                    }
+                  }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className={`w-2 h-2 rounded-full ${typeStyle.dot}`}></div>
+                        <h4 className="font-medium text-gray-900 text-sm leading-tight">
+                          {event.name}
+                        </h4>
+                      </div>
+                      
+                      <div className="text-xs text-gray-600 space-y-0.5">
+                        <div className="flex items-center gap-1">
+                          <span>📍 {event.location}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span>🕒 {isEventToday ? "Today" : eventDate.toLocaleDateString("en-US", { 
+                            month: "short", 
+                            day: "numeric" 
+                          })} • {formatEventTime(event.startTime, event.endTime)}</span>
+                        </div>
+                        {event.description && (
+                          <div className="text-gray-500 text-xs mt-1">
+                            {event.description}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${typeStyle.bg} ${typeStyle.text}`}>
+                      {event.type}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="mt-3 pt-3 border-t border-yellow-200">
+           <a
+              href = "https://owlnest.rice.edu/events"
+              target = "_blank"
+              rel = "noopener noreferrer"
+          >
+            <button className="w-full text-sm text-yellow-700 hover:text-yellow-800 font-medium">
+              View Full Calendar →
+            </button>
+          </a>
+        </div>
+        </section>
 
         {/* Daily walking time summary */}
         <section className="bg-purple-50 p-4 rounded-lg border border-purple-200">
