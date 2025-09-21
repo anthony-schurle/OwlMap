@@ -15,81 +15,6 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-const BUILDINGS = [
-  { id: "DuncanHall", name: "Duncan Hall (CS)", coord: [-95.40134, 29.72069] },
-  { id: "Herzstein", name: "Herzstein Hall", coord: [-95.39938, 29.71897] },
-  { id: "Brockman", name: "Brockman Hall for Physics", coord: [-95.39986, 29.71993] },
-  { id: "Rayzor", name: "Rayzor Hall", coord: [-95.40414, 29.71877] },
-  { id: "Fondren", name: "Fondren Library", coord: [-95.40189, 29.71857] },
-  { id: "Gibbs", name: "Gibbs Recreation Center", coord: [-95.40604, 29.71488] },
-  { id: "BRC", name: "BioScience Research Collaborative (BRC)", coord: [-95.39819, 29.71309] },
-  { id: "RiceMC", name: "Rice Memorial Center", coord: [-95.4015, 29.717] },
-  { id: "Oshman", name: "Oshman Engineering Design Kitchen", coord: [-95.402, 29.721] },
-  { id: "Anderson", name: "Anderson Biological Labs", coord: [-95.399, 29.7195] },
-];
-
-const SERVERIES = [
-  {
-    id: "NorthServery",
-    name: "North Servery",
-    coord: [-95.40324, 29.72041],
-    hours: {
-      Weekdays:
-        "Breakfast: 7:30 AM – 10:30 AM, Snack: 10:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Dinner: 5:00 PM - 8:00 PM",
-      Saturday: "Closed",
-      Sunday:
-        "Breakfast: 8:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Munch: 3:00 PM - 5:00 PM, Dinner: 5:30 PM - 8:30 PM",
-    },
-  },
-  {
-    id: "SeibelServery",
-    name: "Seibel Servery",
-    coord: [-95.40174, 29.71667],
-    hours: {
-      Weekdays:
-        "Breakfast: 7:30 AM – 10:00 AM, Snack: 10:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Dinner: 5:00 PM - 8:00 PM",
-      Saturday: "Closed",
-      Sunday:
-        "Breakfast: 8:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Munch: 3:00 PM - 5:00 PM, Dinner: 5:30 PM - 8:30 PM",
-    },
-  },
-  {
-    id: "WestServery",
-    name: "West Servery",
-    coord: [-95.405, 29.719],
-    hours: {
-      Weekdays:
-        "Breakfast: 7:30 AM – 10:00 AM, Lunch: 11:30 AM - 1:30 PM, Munch: 2:00 PM - 4:00 PM, Snack: 4:00 PM - 5:00 PM, Dinner: 5:00 PM - 9:00 PM",
-      Saturday:
-        "Breakfast: 8:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Munch: 3:00 PM - 5:00 PM, Dinner: 5:30 PM - 8:30 PM",
-      Sunday: "Closed",
-    },
-  },
-  {
-    id: "SouthServery",
-    name: "South Servery",
-    coord: [-95.405, 29.719],
-    hours: {
-      Weekdays:
-        "Breakfast: 7:30 AM – 10:00 AM, Lunch: 11:30 AM - 1:30 PM, Munch: 2:00 PM - 4:00 PM, Snack: 4:00 PM - 5:00 PM, Dinner: 5:00 PM - 9:00 PM",
-      Saturday: "Closed",
-      Sunday: "Closed",
-    },
-  },
-  {
-    id: "BakerServery",
-    name: "Baker Servery",
-    coord: [-95.405, 29.719],
-    hours: {
-      Weekdays:
-        "Breakfast: 7:30 AM – 10:30 AM, Lunch: 11:30 AM - 2:00 PM, Dinner: 5:00 PM - 8:00 PM, Late Night Dining: 9:00 PM - 11:00 PM",
-      Saturday:
-        "Breakfast: 8:00 AM - 11:00 AM, Lunch: 11:30 AM - 2:00 PM, Munch: 3:00 PM - 5:00 PM, Dinner: 5:30 PM - 8:30 PM",
-      Sunday: "Closed",
-    },
-  },
-];
-
 /* ==== UTILS ==== */
 function haversineMeters([lon1, lat1], [lon2, lat2]) {
   const toRad = (d) => (d * Math.PI) / 180;
@@ -216,7 +141,6 @@ export default function RiceNavigatorApp() {
   const [courses, setCourses] = useState([]);
   const [newCourse, setNewCourse] = useState({
     name: "COMP 182",
-    buildingId: BUILDINGS[0].id,
     day: "Mon",
     start: "10:00",
     end: "10:50",
@@ -426,52 +350,6 @@ export default function RiceNavigatorApp() {
 
     mapRef.current = map;
 
-    // Featured building markers (optional)
-    BUILDINGS.forEach((building) => {
-      const marker = L.marker([building.coord[1], building.coord[0]], {
-        icon: createCustomMarker("#3B82F6", "🏛️", 28),
-      })
-        .bindPopup(
-          `<div style="padding: 10px; min-width: 200px;">
-            <h3 style="margin: 0 0 8px 0; color: #1e40af; font-size: 16px; font-weight: bold;">
-              ${building.name}
-            </h3>
-            <p style="margin: 4px 0; font-size: 12px; color: #6b7280; text-transform: uppercase;">
-              Academic Building
-            </p>
-            <p style="margin: 4px 0; color: #059669; font-weight: bold;">
-              Status: Open
-            </p>
-          </div>`
-        )
-        .addTo(map);
-
-      markersRef.current.push(marker);
-    });
-
-    // Servery markers (optional)
-    SERVERIES.forEach((servery) => {
-      const marker = L.marker([servery.coord[1], servery.coord[0]], {
-        icon: createCustomMarker("#10B981", "🍽️", 28),
-      })
-        .bindPopup(
-          `<div style="padding: 10px; min-width: 200px;">
-            <h3 style="margin: 0 0 8px 0; color: #059669; font-size: 16px; font-weight: bold;">
-              ${servery.name}
-            </h3>
-            <p style="margin: 4px 0; font-size: 12px; color: #6b7280; text-transform: uppercase;">
-              Dining Hall
-            </p>
-            <p style="margin: 4px 0; color: #059669; font-weight: bold;">
-              Status: Open
-            </p>
-          </div>`
-        )
-        .addTo(map);
-
-      markersRef.current.push(marker);
-    });
-
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
@@ -588,36 +466,6 @@ export default function RiceNavigatorApp() {
   }
   function removeCourse(id) {
     setCourses((prev) => prev.filter((c) => c.id !== id));
-  }
-  const dayETA = useMemo(() => {
-    const byDay = courses.reduce((acc, c) => {
-      (acc[c.day] ||= []).push(c);
-      return acc;
-    }, {});
-    const result = {};
-    Object.entries(byDay).forEach(([day, list]) => {
-      const sorted = [...list].sort(
-        (a, b) => parseTimeToMinutes(a.start) - parseTimeToMinutes(b.start)
-      );
-      let totalMeters = 0;
-      for (let i = 0; i < sorted.length - 1; i++) {
-        const a = BUILDINGS.find((b) => b.id === sorted[i].buildingId)?.coord;
-        const b = BUILDINGS.find((b) => b.id === sorted[i + 1].buildingId)
-          ?.coord;
-        if (a && b) totalMeters += haversineMeters(a, b);
-      }
-      result[day] = {
-        classes: sorted,
-        totalMinutes: minutesAtSpeed(totalMeters),
-        totalMeters,
-      };
-    });
-    return result;
-  }, [courses]);
-
-  function openServery(id) {
-    const s = SERVERIES.find((x) => x.id === id);
-    if (s) setServeryInfo({ name: s.name, hours: s.hours });
   }
 
   /* ====== RENDER ====== */
@@ -769,10 +617,6 @@ export default function RiceNavigatorApp() {
                 >
                   <div>
                     <div className="font-medium text-gray-900">{c.name}</div>
-                    <div className="text-xs text-gray-600">
-                      {c.day} {c.start}–{c.end} •{" "}
-                      {BUILDINGS.find((b) => b.id === c.buildingId)?.name}
-                    </div>
                   </div>
                   <button
                     onClick={() => removeCourse(c.id)}
@@ -828,12 +672,6 @@ export default function RiceNavigatorApp() {
                 <div
                   key={event.id}
                   className="p-3 border-b last:border-b-0 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => {
-                    const building = BUILDINGS.find(b => b.id === event.buildingId);
-                    if (building && building.name !== selected) {
-                      setSelected(building.name);
-                    }
-                  }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -890,22 +728,6 @@ export default function RiceNavigatorApp() {
             🚶‍♂️ Daily Walk Time
           </h2>
           <div className="bg-white border rounded-lg divide-y max-h-32 overflow-y-auto">
-            {Object.keys(dayETA).length === 0 && (
-              <div className="p-3 text-sm text-gray-500 text-center">
-                Add 2+ classes on a day to see totals.
-              </div>
-            )}
-            {Object.entries(dayETA).map(([day, info]) => (
-              <div
-                key={day}
-                className="p-3 text-sm flex items-center justify-between hover:bg-gray-50"
-              >
-                <span className="font-medium text-gray-900">{day}</span>
-                <span className="text-purple-600 font-medium">
-                  {info.totalMinutes.toFixed(1)} min
-                </span>
-              </div>
-            ))}
           </div>
         </section>
 
@@ -915,15 +737,6 @@ export default function RiceNavigatorApp() {
             🍽️ Serveries & Hours
           </h2>
           <div className="flex flex-wrap gap-2 mb-3">
-            {SERVERIES.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setServeryInfo({ name: s.name, hours: s.hours })}
-                className="px-3 py-1 rounded-full border border-orange-300 hover:bg-orange-100 hover:border-orange-400 transition-colors text-sm"
-              >
-                {s.name}
-              </button>
-            ))}
           </div>
           {serveryInfo && (
             <div className="bg-white p-3 border rounded-lg">
