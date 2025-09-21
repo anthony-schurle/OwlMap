@@ -20,7 +20,7 @@ def init():
         ("Jones College", 29.72165096077053, -95.39676200326267),
         ("Brown College", 29.72158108027819, -95.39587687430644),
         ("McMurtry College", 29.720369810681373, -95.39811383654994),
-        ("Anderson Biological Laboratories", 29.718533877370447, -95.40277557979525),
+        ("Anderson Biological Laboratories", 29.718533877370447, -95.40277557979525), #No Edges
         ("Duncan Hall", 29.72012629264678, -95.39876267795523),
         ("Brockman Hall", 29.719657512578248,  -95.40156544571923),
         ("Dell Butcher Hall", 29.719610775088725, -95.40342413588199),
@@ -45,7 +45,6 @@ def init():
     # Define edges with accurate distances
     edges = [
         ("Lovett College", "Will Rice College", 492),
-        ("Fondren Library", "Will Rice College", 1131),
         ("Fondren Library", "Recreation Center", 1364),
         ("Hanszen College", "Will Rice College", 719),
         ("Fondren Library", "Hanszen College", 1277),
